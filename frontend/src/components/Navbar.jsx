@@ -168,7 +168,7 @@ const Navbar = () => {
             <MobileLink onClick={() => handleScrollToSection('top')}>Home</MobileLink>
             <MobileLink onClick={() => handleScrollToSection('how-it-works')}>Process</MobileLink>
             <MobileLink onClick={() => handleScrollToSection('features')}>Services</MobileLink>
-            <Link to="/profile" className="block py-2">Profile & Settings</Link>
+            <Link to="/profile" className="block py-2">Profile</Link>
             {!token ? (
                <Link to="/login" className="mt-4 w-full py-3 bg-indigo-600 text-white font-bold rounded-xl text-center">Sign In</Link>
             ) : (
