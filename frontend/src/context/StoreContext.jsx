@@ -21,9 +21,13 @@ const StoreContextProvider = (props) => {
   
   const checkCompletion = (userData) => {
       if (!userData) return false;
+      
+      if (userData.isNewUser === false) return true; 
+
       if (userData.role === 'ADMIN') return true;
       if (userData.role === 'WORKER') return !!userData.phone || !!userData.phoneNumber;
       if (userData.role === 'CUSTOMER') return (!!userData.phone || !!userData.phoneNumber) && !!userData.address;
+      
       return false; 
   };
   const isProfileComplete = checkCompletion(user); 
@@ -34,7 +38,6 @@ const StoreContextProvider = (props) => {
   const [availableJobs, setAvailableJobs] = useState([]);
   const [activeJob, setActiveJob] = useState(null);
   const [workerHistory, setWorkerHistory] = useState([]);
-  
   const [allBookings, setAllBookings] = useState([]); 
   const [customersList, setCustomersList] = useState([]); 
   const [workersList, setWorkersList] = useState([]);     
@@ -103,10 +106,12 @@ const StoreContextProvider = (props) => {
     try {
       const res = await axios.post(`${USER_URL}/auth/google`, { token: idToken });
       if (res.status === 200) {
-        const { token: newToken, user: newUser } = res.data.data;
-        saveAuth(newToken, newUser);
+        const { token: newToken, user: newUser, isNewUser } = res.data.data;
+        const userWithFlag = { ...newUser, isNewUser: isNewUser !== undefined ? isNewUser : false };
+        
+        saveAuth(newToken, userWithFlag);
         toast.success(`Welcome back, ${newUser.name}!`);
-        return { success: true, role: newUser.role };
+        return { success: true, role: newUser.role, isNewUser: false };
       } else if (res.status === 202) {
         toast.info("New account detected. Please complete registration.");
         return { success: false, isNewUser: true, data: res.data.data };
@@ -119,7 +124,7 @@ const StoreContextProvider = (props) => {
       setIsLoading(false);
     }
   };
-
+  
   const registerUser = async (formData) => {
     setIsLoading(true);
     try {
@@ -132,7 +137,8 @@ const StoreContextProvider = (props) => {
             address: formData.address,
             city: formData.city,
             pinCode: formData.pinCode,
-            department: formData.department
+            department: formData.department,
+            isNewUser: false
         };
         saveAuth(newToken, completeUser);
         toast.success("Registration Successful!");
