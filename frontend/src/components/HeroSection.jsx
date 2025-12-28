@@ -3,7 +3,7 @@ import { StoreContext } from '../context/StoreContext';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import BookServiceForm from './BookServiceForm'; 
-import { ArrowRight, Star, ShieldCheck, Zap } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const HeroSection = () => {
   const { isSignedIn, user, role } = useContext(StoreContext);
@@ -29,13 +29,13 @@ const HeroSection = () => {
 
   return (
     <>
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-white dark:bg-slate-950 transition-colors duration-500">
+      <section className="relative min-h-screen flex flex-col justify-center pt-20 overflow-hidden bg-white dark:bg-slate-950 transition-colors duration-500">
 
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
         
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none opacity-0 dark:opacity-20 transition-opacity duration-500"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] md:w-[600px] md:h-[600px] bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none opacity-0 dark:opacity-20 transition-opacity duration-500"></div>
 
-        <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+        <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 flex flex-col items-center">
           
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <span className="relative flex h-2 w-2">
@@ -45,18 +45,18 @@ const HeroSection = () => {
             #1 Rated Home Service Platform
           </div>
 
-          <h1 className="max-w-4xl mx-auto text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both">
+          <h1 className="max-w-4xl mx-auto text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both leading-[1.1]">
             Your Home Needs, <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">
               Fixed in a Click.
             </span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100 fill-mode-both">
+          <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100 fill-mode-both">
             From electrical repairs to plumbing emergencies, we connect you with vetted professionals instantly. No calls, no haggling, just fixed.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-200 fill-mode-both">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-200 fill-mode-both">
             <button
               onClick={handleBookButtonClick}
               className="w-full sm:w-auto px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full font-bold text-lg hover:scale-105 transition-transform duration-300 shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2"
@@ -88,12 +88,5 @@ const HeroSection = () => {
     </>
   );
 };
-
-const TrustItem = ({ icon, text }) => (
-  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-medium">
-    <div className="text-indigo-600 dark:text-indigo-400">{React.cloneElement(icon, { size: 20 })}</div>
-    {text}
-  </div>
-);
 
 export default HeroSection;

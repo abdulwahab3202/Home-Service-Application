@@ -166,8 +166,8 @@ const Navbar = () => {
       {isMobileMenuOpen && (
          <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shadow-xl p-4 flex flex-col gap-2">
             <MobileLink onClick={() => handleScrollToSection('top')}>Home</MobileLink>
+            <MobileLink onClick={() => handleScrollToSection('how-it-works')}>Process</MobileLink>
             <MobileLink onClick={() => handleScrollToSection('features')}>Services</MobileLink>
-            <MobileLink onClick={() => handleScrollToSection('how-it-works')}>How it Works</MobileLink>
             {!token ? (
                <Link to="/login" className="mt-4 w-full py-3 bg-indigo-600 text-white font-bold rounded-xl text-center">Sign In</Link>
             ) : (
