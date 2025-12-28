@@ -165,8 +165,7 @@ public class UserServiceImpl implements IUserService {
                     userRepository.save(existingUser);
                 }
 
-                CommonResponse successRes = generateLoginResponse(existingUser, "Login Successful", HttpStatus.OK);
-                return successRes;
+                return generateLoginResponse(existingUser, "Login Successful", HttpStatus.OK);
 
             } else {
                 if (ADMIN_EMAIL.equalsIgnoreCase(email)) {
@@ -177,14 +176,14 @@ public class UserServiceImpl implements IUserService {
                     newAdmin.setPassword(passwordEncoder.encode("GOOGLE_AUTH_ADMIN_SECURE"));
                     userRepository.save(newAdmin);
 
-                    CommonResponse adminSuccessRes = generateLoginResponse(newAdmin, "Admin Account Created & Logged In", HttpStatus.OK);
-                    return adminSuccessRes;
+                    return generateLoginResponse(newAdmin, "Admin Account Created & Logged In", HttpStatus.OK);
                 }
 
-                Map<String, String> tempProfile = new HashMap<>();
+                Map<String, Object> tempProfile = new HashMap<>();
                 tempProfile.put("email", email);
                 tempProfile.put("name", name);
                 tempProfile.put("provider", "GOOGLE");
+                tempProfile.put("isNewUser", true);
 
                 response.setResponseStatus(ResponseStatus.SUCCESS);
                 response.setMessage("NEW_USER");
@@ -367,7 +366,7 @@ public class UserServiceImpl implements IUserService {
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
         data.put("user", toDTO(user));
-
+        data.put("isNewUser", false);
         CommonResponse response = new CommonResponse();
         response.setMessage(msg);
         response.setResponseStatus(ResponseStatus.SUCCESS);

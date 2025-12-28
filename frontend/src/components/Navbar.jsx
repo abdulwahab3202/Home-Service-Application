@@ -136,7 +136,7 @@ const Navbar = () => {
                         <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
                       </div>
                       <div className="p-2">
-                        <DropdownItem to="/profile" icon={<Settings size={16} />} text="Settings" />
+                        <DropdownItem to="/profile" icon={<Settings size={16} />} text="Profile" />
                         <DropdownItem to={getDashboardRoute()} icon={<LayoutDashboard size={16} />} text="Dashboard" />
                       </div>
                       <div className="px-2 pb-2">
@@ -168,6 +168,7 @@ const Navbar = () => {
             <MobileLink onClick={() => handleScrollToSection('top')}>Home</MobileLink>
             <MobileLink onClick={() => handleScrollToSection('how-it-works')}>Process</MobileLink>
             <MobileLink onClick={() => handleScrollToSection('features')}>Services</MobileLink>
+            <Link to="/profile" className="block py-2">Profile & Settings</Link>
             {!token ? (
                <Link to="/login" className="mt-4 w-full py-3 bg-indigo-600 text-white font-bold rounded-xl text-center">Sign In</Link>
             ) : (
