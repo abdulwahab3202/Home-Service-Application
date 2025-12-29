@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { StoreContext } from '../context/StoreContext';
-import { 
-  LogOut, User, Menu, X, Wrench, ChevronDown, 
+import {
+  LogOut, User, Menu, X, Wrench, ChevronDown,
   LayoutDashboard, Settings, Moon, Sun, Sparkles
 } from 'lucide-react';
 
@@ -12,7 +12,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  
+
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const dropdownRef = useRef(null);
 
@@ -74,16 +74,15 @@ const Navbar = () => {
   };
 
   return (
-    <nav 
-      className={`fixed w-full top-0 z-50 transition-all duration-500 border-b ${
-        isScrolled 
-          ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-lg border-slate-200 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none py-3' 
+    <nav
+      className={`fixed w-full top-0 z-50 transition-all duration-500 border-b ${isScrolled
+          ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-lg border-slate-200 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none py-3'
           : 'bg-transparent border-transparent py-5'
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-12">
-          
+
           <div onClick={() => handleScrollToSection('top')} className="flex items-center gap-2 cursor-pointer group">
             <div className="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl text-white shadow-lg shadow-indigo-500/30  transition-transform duration-300">
               <Wrench size={20} strokeWidth={2.5} />
@@ -100,7 +99,7 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <button 
+            <button
               onClick={toggleTheme}
               className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300"
             >
@@ -108,15 +107,15 @@ const Navbar = () => {
             </button>
 
             {!token ? (
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="px-6 py-2.5 text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-full hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
               >
                 Sign in
               </Link>
             ) : (
               <div className="relative" ref={dropdownRef}>
-                <button 
+                <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center gap-3 pl-1 pr-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-indigo-500 transition-all"
                 >
@@ -130,62 +129,67 @@ const Navbar = () => {
                 </button>
 
                 {isProfileOpen && (
-                   <div className="absolute right-0 top-12 w-60 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2">
-                      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                        <p className="text-sm font-bold text-slate-900 dark:text-white">{user?.name}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
-                      </div>
-                      <div className="p-2">
-                        <DropdownItem to="/profile" icon={<Settings size={16} />} text="Profile" />
-                        <DropdownItem to={getDashboardRoute()} icon={<LayoutDashboard size={16} />} text="Dashboard" />
-                      </div>
-                      <div className="px-2 pb-2">
-                        <button 
-                          onClick={handleLogout}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
-                        >
-                          <LogOut size={16} /> Sign Out
-                        </button>
-                      </div>
-                   </div>
+                  <div className="absolute right-0 top-12 w-60 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2">
+                    <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">{user?.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
+                    </div>
+                    <div className="p-2">
+                      <DropdownItem to="/profile" icon={<Settings size={16} />} text="Profile" />
+                      <DropdownItem to={getDashboardRoute()} icon={<LayoutDashboard size={16} />} text="Dashboard" />
+                    </div>
+                    <div className="px-2 pb-2">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
+                      >
+                        <LogOut size={16} /> Sign Out
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             )}
           </div>
 
           <div className="md:hidden flex items-center gap-3">
-             <button onClick={toggleTheme} className="p-2 text-slate-600 dark:text-slate-300">
-               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-             </button>
-             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-900 dark:text-white">
-               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-             </button>
+            <button onClick={toggleTheme} className="p-2 text-slate-600 dark:text-slate-300">
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-900 dark:text-white">
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
       </div>
       {isMobileMenuOpen && (
-         <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shadow-xl p-4 flex flex-col gap-2">
-            <MobileLink onClick={() => handleScrollToSection('top')}>Home</MobileLink>
-            <MobileLink onClick={() => handleScrollToSection('how-it-works')}>Process</MobileLink>
-            <MobileLink onClick={() => handleScrollToSection('features')}>Services</MobileLink>
-            <Link to="/profile" className="block py-2">Profile</Link>
-            {!token ? (
-               <Link to="/login" className="mt-4 w-full py-3 bg-indigo-600 text-white font-bold rounded-xl text-center">Sign In</Link>
-            ) : (
-               <>
-                 <MobileLink onClick={() => {navigate(getDashboardRoute()); setIsMobileMenuOpen(false);}}>Dashboard</MobileLink>
-                 <button onClick={handleLogout} className="mt-2 w-full py-3 text-red-600 font-bold bg-red-50 dark:bg-red-900/10 rounded-xl">Sign Out</button>
-               </>
-            )}
-         </div>
+        <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shadow-xl p-4 flex flex-col gap-2">
+          <MobileLink onClick={() => handleScrollToSection('top')}>Home</MobileLink>
+          <MobileLink onClick={() => handleScrollToSection('how-it-works')}>Process</MobileLink>
+          <MobileLink onClick={() => handleScrollToSection('features')}>Services</MobileLink>
+          <MobileLink
+            to="/profile"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Profile
+          </MobileLink>
+          {!token ? (
+            <Link to="/login" className="mt-4 w-full py-3 bg-indigo-600 text-white font-bold rounded-xl text-center">Sign In</Link>
+          ) : (
+            <>
+              <MobileLink onClick={() => { navigate(getDashboardRoute()); setIsMobileMenuOpen(false); }}>Dashboard</MobileLink>
+              <button onClick={handleLogout} className="mt-2 w-full py-3 text-red-600 font-bold bg-red-50 dark:bg-red-900/10 rounded-xl">Sign Out</button>
+            </>
+          )}
+        </div>
       )}
     </nav>
   );
 };
 
 const NavPill = ({ onClick, children }) => (
-  <button 
-    onClick={onClick} 
+  <button
+    onClick={onClick}
     className="px-5 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-full transition-all duration-300"
   >
     {children}
