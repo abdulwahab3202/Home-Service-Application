@@ -1,6 +1,7 @@
 package com.fullstack.worker_service.service.impl;
 
 import com.fullstack.worker_service.client.BookingClient;
+import com.fullstack.worker_service.client.UserClient;
 import com.fullstack.worker_service.entity.Worker;
 import com.fullstack.worker_service.model.CommonResponse;
 import com.fullstack.worker_service.model.ResponseStatus;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,6 +27,9 @@ public class WorkerServiceImpl implements IWorkerService {
 
     @Autowired
     private BookingClient bookingClient;
+
+    @Autowired
+    private UserClient userClient;
 
     @Override
     public CommonResponse createWorkerProfile(WorkerRequest workerRequest){
@@ -95,6 +100,19 @@ public class WorkerServiceImpl implements IWorkerService {
     @Override
     public CommonResponse getWorkerById(String id) {
         Worker worker = workerRepository.getWorkerById(id);
+        if (worker == null) {
+            return new CommonResponse(HttpStatus.NOT_FOUND, ResponseStatus.FAILED, "Worker Not Found", null, 404);
+        }
+        try {
+            ResponseEntity<CommonResponse> userRes = userClient.getUserContactInfo(id);
+            if (userRes != null && userRes.getBody() != null && userRes.getBody().getData() != null) {
+                Map<String, Object> userData = (Map<String, Object>) userRes.getBody().getData();
+                worker.setName((String) userData.get("name"));
+                worker.setEmail((String) userData.get("email"));
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to fetch user Name/Email: " + e.getMessage());
+        }
         CommonResponse response = new CommonResponse();
         response.setResponseStatus(ResponseStatus.SUCCESS);
         response.setMessage("Worker Retrieved Successfully");
