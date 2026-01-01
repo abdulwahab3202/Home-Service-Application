@@ -117,17 +117,14 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
         }
         WorkAssignment assignment = assignmentOpt.get();
 
-        // 1. Generate 4-digit OTP
         String otp = String.valueOf((int) (Math.random() * 9000) + 1000);
-        assignment.setCompletionOtp(otp);
-        assignmentRepo.save(assignment);
 
-        // 2. Fetch Customer Email and Send OTP
         try {
             String customerEmail = fetchCustomerEmail(assignment.getBookingId());
             if (customerEmail != null) {
-                // You need to create this method in EmailService
                 emailService.sendOtpEmail(customerEmail, otp);
+                assignment.setCompletionOtp(otp);
+                assignmentRepo.save(assignment);
                 response.setMessage("OTP sent to customer email.");
                 response.setResponseStatus(ResponseStatus.SUCCESS);
                 response.setStatus(HttpStatus.OK);
@@ -136,9 +133,9 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
                 return buildError("Could not find customer email linked to booking.", HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
-            return buildError("Failed to send email: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            System.err.println("Email failed: " + e.getMessage());
+            return buildError("Failed to send OTP email. Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
         return response;
     }
 
@@ -153,15 +150,12 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
         WorkAssignment assignment = assignmentOpt.get();
 
         if ("COMPLETED".equalsIgnoreCase(status)) {
-            // 1. Check if OTP was provided
             if (otpInput == null || otpInput.isEmpty()) {
                 return buildError("OTP is required to complete the job.", HttpStatus.BAD_REQUEST);
             }
-            // 2. Check if OTP matches DB
             if (assignment.getCompletionOtp() == null || !assignment.getCompletionOtp().equals(otpInput)) {
                 return buildError("Invalid OTP. Please ask the customer for the correct code.", HttpStatus.UNAUTHORIZED);
             }
-            // 3. Clear OTP after successful use so it can't be reused
             assignment.setCompletionOtp(null);
         }
 
@@ -266,7 +260,6 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
 
     private String fetchCustomerEmail(String bookingId) {
         try {
-            // 1. Get Booking to find User ID
             ResponseEntity<CommonResponse> bookingRes = bookingClient.getBookingById(bookingId);
 
             if (bookingRes != null && bookingRes.getBody() != null && bookingRes.getBody().getData() != null) {
@@ -274,11 +267,9 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
                 String userId = (String) bData.get("userId");
 
                 if (userId != null) {
-                    // 2. Call the NEW Optimized Endpoint
                     ResponseEntity<CommonResponse> userRes = userClient.getUserContactInfo(userId);
 
                     if (userRes != null && userRes.getBody() != null && userRes.getBody().getData() != null) {
-                        // Feign usually converts the response body 'data' to a LinkedHashMap
                         Map<String, Object> contactData = (Map<String, Object>) userRes.getBody().getData();
                         return (String) contactData.get("email");
                     }
