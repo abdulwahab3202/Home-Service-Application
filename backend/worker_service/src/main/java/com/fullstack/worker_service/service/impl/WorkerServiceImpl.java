@@ -9,6 +9,8 @@ import com.fullstack.worker_service.repository.WorkerRepository;
 import com.fullstack.worker_service.request.WorkerRequest;
 import com.fullstack.worker_service.service.IWorkerService;
 import io.jsonwebtoken.Claims;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ import java.util.Optional;
 
 @Service
 public class WorkerServiceImpl implements IWorkerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkerServiceImpl.class);
 
     @Autowired
     private WorkerRepository workerRepository;
@@ -76,13 +80,63 @@ public class WorkerServiceImpl implements IWorkerService {
     }
 
     @Override
-    public CommonResponse getAvailableBookings(HttpServletRequest request){
-        Claims claims = (Claims) request.getAttribute("userClaims");
-        String workerId = claims.get("userId", String.class);
-        Worker worker = workerRepository.getWorkerById(workerId);
-        String category = worker.getDepartment();
-        ResponseEntity<CommonResponse> response = bookingClient.getBookingsByCategory(category);
-        return response.getBody();
+    public CommonResponse getAvailableBookings(HttpServletRequest request) {
+        logger.info(">>> [1] Request received in getAvailableBookings");
+
+        try {
+            // Step 1: Extract Claims
+            Claims claims = (Claims) request.getAttribute("userClaims");
+            if (claims == null) {
+                logger.error(">>> [ERROR] User claims are NULL in request attributes. JwtFilter might have failed.");
+                return new CommonResponse(HttpStatus.UNAUTHORIZED, ResponseStatus.FAILED, "Invalid Token Claims", null, 401);
+            }
+
+            String workerId = claims.get("userId", String.class);
+            logger.info(">>> [2] Extracted Worker ID from Token: {}", workerId);
+
+            // Step 2: Fetch Worker details from DB
+            Worker worker = workerRepository.getWorkerById(workerId);
+
+            // CRITICAL CHECK: If worker does not exist in DB, this would throw NullPointerException later
+            if (worker == null) {
+                logger.error(">>> [ERROR] Worker details not found in Database for ID: {}", workerId);
+                return new CommonResponse(HttpStatus.NOT_FOUND, ResponseStatus.FAILED, "Worker Profile Not Found", null, 404);
+            }
+
+            logger.info(">>> [3] Worker Found: Name={}, Department={}", worker.getName(), worker.getDepartment());
+
+            String category = worker.getDepartment();
+            if (category == null || category.isEmpty()) {
+                logger.warn(">>> [WARN] Worker has no department assigned.");
+                return new CommonResponse(HttpStatus.BAD_REQUEST, ResponseStatus.FAILED, "Worker Department is missing", null, 400);
+            }
+
+            // Step 3: Call Booking Service via Feign
+            logger.info(">>> [4] Calling Booking-Service via Feign for Category: {}", category);
+
+            ResponseEntity<CommonResponse> responseEntity = bookingClient.getBookingsByCategory(category);
+
+            if (responseEntity == null) {
+                logger.error(">>> [ERROR] Booking-Service returned NULL response entity");
+                return new CommonResponse(HttpStatus.INTERNAL_SERVER_ERROR, ResponseStatus.FAILED, "Booking Service Unavailable", null, 500);
+            }
+
+            logger.info(">>> [5] Booking-Service HTTP Status: {}", responseEntity.getStatusCode());
+
+            CommonResponse body = responseEntity.getBody();
+            if (body != null) {
+                logger.info(">>> [6] Booking-Service Response Message: {}", body.getMessage());
+            } else {
+                logger.warn(">>> [WARN] Booking-Service response BODY is null");
+            }
+
+            return body;
+
+        } catch (Exception e) {
+            // This captures connection refused, timeouts, or logic errors
+            logger.error(">>> [CRITICAL FAILURE] Exception in getAvailableBookings: ", e);
+            return new CommonResponse(HttpStatus.INTERNAL_SERVER_ERROR, ResponseStatus.FAILED, "Internal Server Error: " + e.getMessage(), null, 500);
+        }
     }
 
     @Override
