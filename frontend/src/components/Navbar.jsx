@@ -168,8 +168,10 @@ const Navbar = () => {
           <MobileLink onClick={() => handleScrollToSection('how-it-works')}>Process</MobileLink>
           <MobileLink onClick={() => handleScrollToSection('features')}>Services</MobileLink>
           <MobileLink
-            to="/profile"
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              navigate('/profile');
+            }}
           >
             Profile
           </MobileLink>
