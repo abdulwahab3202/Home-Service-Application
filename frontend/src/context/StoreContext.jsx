@@ -213,23 +213,27 @@ const StoreContextProvider = (props) => {
     setIsLoading(true); 
     try {
       const headers = { 'Authorization': `Bearer ${token}` };
-      
       const jobsRes = await axios.get(`${WORKER_URL}/worker/get-all-complaints`, { headers });
       setAvailableJobs(jobsRes.data.data || []);
-
       const myAssignsRes = await axios.get(`${WORKER_URL}/work-assignment/worker/${user.id}`, { headers });
       const myAssigns = myAssignsRes.data.data || [];
-      setWorkerHistory(myAssigns);
-
-      const activeAssignment = myAssigns.find(a => ['ASSIGNED', 'IN_PROGRESS'].includes(a.status));
-
+      const historyWithDetails = await Promise.all(myAssigns.map(async (assignment) => {
+          try {
+              const bookingRes = await axios.get(`${BOOKING_URL}/get/${assignment.bookingId}`, { headers });
+              if (bookingRes.data.responseStatus === "SUCCESS") {
+                  return { ...assignment, ...bookingRes.data.data }; 
+              }
+          } catch (e) {
+              console.error(`Failed to load details for booking ${assignment.bookingId}`);
+          }
+          return assignment;
+      }));
+      setWorkerHistory(historyWithDetails);
+      const activeAssignment = historyWithDetails.find(a => ['ASSIGNED', 'IN_PROGRESS'].includes(a.status));
       if (activeAssignment) {
-        const bookingRes = await axios.get(`${BOOKING_URL}/get/${activeAssignment.bookingId}`, { headers });
         setActiveJob({
-          ...bookingRes.data.data,
-          assignmentId: activeAssignment.assignmentId,
-          status: activeAssignment.status,
-          customerEmail: bookingRes.data.data.customerEmail || bookingRes.data.data.email || "Customer"
+          ...activeAssignment,
+          customerEmail: activeAssignment.customerEmail || activeAssignment.email || "Customer"
         });
       } else {
         setActiveJob(null);

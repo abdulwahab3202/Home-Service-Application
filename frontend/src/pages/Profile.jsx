@@ -8,25 +8,15 @@ import {
 
 const formatDate = (dateInput) => {
   if (!dateInput) return "N/A";
-
   let targetDate = dateInput;
-
   if (typeof dateInput === 'object' && dateInput !== null) {
       if (dateInput.$date) targetDate = dateInput.$date;
   }
-
   try {
     const date = new Date(targetDate);
     if (isNaN(date.getTime())) return "Invalid Date";
-    
-    return date.toLocaleDateString('en-US', { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric' 
-    });
-  } catch (e) {
-    return "Date Error";
-  }
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch (e) { return "Date Error"; }
 };
 
 const Profile = () => {
@@ -35,19 +25,11 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('details'); 
   
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
-
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    pincode: '',
-    department: ''
+    name: '', email: '', phone: '', address: '', city: '', pincode: '', department: ''
   });
+
+  useEffect(() => { fetchUserProfile(); }, []);
 
   useEffect(() => {
     if (user) {
@@ -63,32 +45,19 @@ const Profile = () => {
     }
   }, [user]);
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
     try {
-      const apiPayload = {
-        ...formData,
-        phoneNumber: formData.phone, 
-        pinCode: formData.pincode      
-      };
-      
+      const apiPayload = { ...formData, phoneNumber: formData.phone, pinCode: formData.pincode };
       await updateProfile(apiPayload);
       setIsEditing(false);
-    } catch (error) {
-      console.error("Profile update failed", error);
-    }
+    } catch (error) { console.error("Profile update failed", error); }
   };
 
   const role = user?.role || 'CUSTOMER';
   const completedJobsCount = workerHistory ? workerHistory.filter(j => j.status === 'COMPLETED').length : 0;
-  const credits = user?.totalCredits || 0;
-
-  const userInitials = user?.name 
-    ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
-    : 'U';
+  const userInitials = user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 transition-colors duration-500">
@@ -107,15 +76,11 @@ const Profile = () => {
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white transition-colors duration-300">{user?.name}</h1>
               <div className="flex items-center gap-2 mt-1">
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${
-                  role === 'WORKER' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                }`}>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${role === 'WORKER' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'}`}>
                   {role}
                 </span>
                 {role === 'WORKER' && user?.department && (
-                  <span className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
-                    • {user.department}
-                  </span>
+                  <span className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">• {user.department}</span>
                 )}
               </div>
             </div>
@@ -174,10 +139,10 @@ const Profile = () => {
 
               {role !== 'ADMIN' && (
                 <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Phone Number</label>
-                {isEditing ? <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" /> 
-                : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><Phone size={18} className="text-slate-400 dark:text-slate-500"/> {user?.phoneNumber || user?.phone || "Not provided"}</div>}
-              </div>
+                  <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Phone Number</label>
+                  {isEditing ? <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" /> 
+                  : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><Phone size={18} className="text-slate-400 dark:text-slate-500"/> {user?.phoneNumber || user?.phone || "Not provided"}</div>}
+                </div>
               )}
 
               {role === 'WORKER' && (
@@ -229,16 +194,12 @@ const Profile = () => {
                 {role === 'CUSTOMER' ? (
                   bookings && bookings.filter(b => b.status === 'COMPLETED').length > 0 ? (
                     bookings.filter(b => b.status === 'COMPLETED').map(booking => (
-                      <div 
-                        key={booking.id} 
-                        className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all hover:shadow-md dark:hover:border-slate-700"
-                      >
+                      <div key={booking.id} className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all hover:shadow-md dark:hover:border-slate-700">
                         <div className="w-full sm:w-auto">
                           <h4 className="font-bold text-slate-900 dark:text-white">{booking.title}</h4>
                           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{booking.serviceCategory}</p>
                           <span className="text-xs text-slate-400 dark:text-slate-500 mt-2 flex items-center gap-1">
-                            <Clock size={12} />
-                            Created on: {formatDate(booking.createdOn || booking.date)}
+                            <Clock size={12} /> Created on: {formatDate(booking.createdOn || booking.date)}
                           </span>
                         </div>
                         <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-3 py-1 rounded-full uppercase flex items-center gap-1 self-start sm:self-center shrink-0">
@@ -250,17 +211,22 @@ const Profile = () => {
                 ) : (
                   workerHistory && workerHistory.filter(j => j.status === 'COMPLETED').length > 0 ? (
                     workerHistory.filter(j => j.status === 'COMPLETED').map(job => (
-                      <div 
-                        key={job.assignmentId} 
-                        className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all hover:shadow-md dark:hover:border-slate-700"
-                      >
+                      <div key={job.assignmentId} className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all hover:shadow-md dark:hover:border-slate-700">
                         <div className="w-full sm:w-auto">
-                          <h4 className="font-bold text-slate-900 dark:text-white">Job ID: #{job.bookingId.substring(0,8)}...</h4>
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Earned <span className="font-bold text-indigo-600 dark:text-indigo-400">{job.creditPoints} Credits</span></p>
-                          <span className="text-xs text-slate-400 dark:text-slate-500 mt-2 flex items-center gap-1">
-                            <Clock size={12} />
-                            Finished: {formatDate(job.completedOn || job.date)}
-                          </span>
+                          <h4 className="font-bold text-slate-900 dark:text-white text-lg">
+                            {job.title || `Job #${job.bookingId?.substring(0, 6)}`}
+                          </h4>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 max-w-xl leading-relaxed">
+                            {job.description || "No description provided."}
+                          </p>
+                          <div className="flex items-center gap-4 mt-3">
+                             <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                                <Clock size={12} /> Finished: {formatDate(job.completedOn || job.date)}
+                             </span>
+                             <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded">
+                                +{job.creditPoints} Credits
+                             </span>
+                          </div>
                         </div>
                         <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-3 py-1 rounded-full uppercase flex items-center gap-1 self-start sm:self-center shrink-0">
                           <CheckCircle size={14} /> Success
