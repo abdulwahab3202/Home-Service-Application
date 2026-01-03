@@ -302,11 +302,12 @@ const StoreContextProvider = (props) => {
         {}, 
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      
+      console.log("Generate OTP API Response:", res.data);
       if (res.status === 200 || res.data.responseStatus === "SUCCESS") {
         toast.success("OTP sent to customer's email!");
-        return true;
+        return res.data; 
       }
+      return null;
     } catch (error) {
       console.error("Generate OTP Error:", error);
       toast.error(error.response?.data?.message || "Failed to generate OTP.");
