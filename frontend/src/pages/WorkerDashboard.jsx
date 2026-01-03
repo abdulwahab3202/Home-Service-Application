@@ -161,7 +161,6 @@ const WorkerDashboard = () => {
           });
         }
       } catch (e) {
-        console.error(e);
         Swal.fire({
             title: 'Error', 
             text: 'Network error occurred', 
@@ -220,13 +219,7 @@ const WorkerDashboard = () => {
       const response = await completeJob(finalOtp); 
       if(response && (response.statusCode === 200 || response.success === true || response === true)) {
           setShowOtpModal(false); 
-          setOtp(['', '', '', '']); 
-          Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: 'Job completed successfully!',
-            scrollbarPadding: false
-          });
+          setOtp(['', '', '', '']);
       } 
     } catch (error) {
       if (error.response && error.response.status === 401) {

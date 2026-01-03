@@ -75,9 +75,9 @@ const AdminDashboard = () => {
    const TabButton = ({ id, label, icon: Icon }) => (
       <button
          onClick={() => { setActiveTab(id); setSearchTerm(''); }}
-         className={`flex items-center gap-2 px-6 py-3 font-medium text-sm transition-all border-b-2 ${activeTab === id
-               ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/20'
-               : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
+         className={`flex items-center gap-2 px-4 sm:px-6 py-3 font-medium text-sm transition-all border-b-2 whitespace-nowrap ${activeTab === id
+            ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/20'
+            : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
       >
          <Icon size={18} /> {label}
@@ -122,7 +122,7 @@ const AdminDashboard = () => {
                   <RefreshCw size={16} /> Refresh
                </button>
             </div>
-            <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8 bg-white dark:bg-slate-900 rounded-t-xl overflow-hidden shadow-sm transition-colors duration-300">
+            <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8 bg-white dark:bg-slate-900 rounded-t-xl overflow-hidden shadow-sm transition-colors duration-300 overflow-x-auto">
                <TabButton id="OVERVIEW" label="Overview" icon={Shield} />
                <TabButton id="CUSTOMERS" label="Customers" icon={Users} />
                <TabButton id="WORKERS" label="Workers" icon={Briefcase} />
@@ -130,32 +130,32 @@ const AdminDashboard = () => {
             {activeTab === 'OVERVIEW' && (
                <div className="space-y-8 animate-in fade-in">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                     <StatCard 
-                        title="Total Customers" 
-                        value={adminStats.totalUsers || 0} 
-                        icon={Users} 
-                        bgClass="bg-blue-50" iconClass="text-blue-600" 
+                     <StatCard
+                        title="Total Customers"
+                        value={adminStats.totalUsers || 0}
+                        icon={Users}
+                        bgClass="bg-blue-50" iconClass="text-blue-600"
                         darkBgClass="dark:bg-blue-900/20" darkIconClass="dark:text-blue-400"
                      />
-                     <StatCard 
-                        title="Active Workers" 
-                        value={adminStats.activeWorkers || 0} 
-                        icon={Briefcase} 
-                        bgClass="bg-indigo-50" iconClass="text-indigo-600" 
+                     <StatCard
+                        title="Active Workers"
+                        value={adminStats.activeWorkers || 0}
+                        icon={Briefcase}
+                        bgClass="bg-indigo-50" iconClass="text-indigo-600"
                         darkBgClass="dark:bg-indigo-900/20" darkIconClass="dark:text-indigo-400"
                      />
-                     <StatCard 
-                        title="Total Requests" 
-                        value={adminStats.totalBookings || 0} 
-                        icon={Calendar} 
-                        bgClass="bg-orange-50" iconClass="text-orange-600" 
+                     <StatCard
+                        title="Total Requests"
+                        value={adminStats.totalBookings || 0}
+                        icon={Calendar}
+                        bgClass="bg-orange-50" iconClass="text-orange-600"
                         darkBgClass="dark:bg-orange-900/20" darkIconClass="dark:text-orange-400"
                      />
-                     <StatCard 
-                        title="Jobs Completed" 
-                        value={adminStats.completedJobs || 0} 
-                        icon={CheckCircle} 
-                        bgClass="bg-green-50" iconClass="text-green-600" 
+                     <StatCard
+                        title="Jobs Completed"
+                        value={adminStats.completedJobs || 0}
+                        icon={CheckCircle}
+                        bgClass="bg-green-50" iconClass="text-green-600"
                         darkBgClass="dark:bg-green-900/20" darkIconClass="dark:text-green-400"
                      />
                   </div>
@@ -163,9 +163,9 @@ const AdminDashboard = () => {
                      <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                         <h3 className="font-bold text-slate-800 dark:text-white">Service Requests</h3>
                         <div className="flex gap-2">
-                           <select 
-                              value={filterStatus} 
-                              onChange={(e) => setFilterStatus(e.target.value)} 
+                           <select
+                              value={filterStatus}
+                              onChange={(e) => setFilterStatus(e.target.value)}
                               className="text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded px-2 py-1 outline-none focus:border-indigo-500"
                            >
                               <option value="ALL">All Status</option>
@@ -209,12 +209,12 @@ const AdminDashboard = () => {
                      <h3 className="font-bold text-slate-800 dark:text-white">Customer List</h3>
                      <div className="relative">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input 
-                           type="text" 
-                           placeholder="Search customers..." 
-                           value={searchTerm} 
-                           onChange={(e) => setSearchTerm(e.target.value)} 
-                           className="pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg text-sm w-32 sm:w-auto outline-none focus:border-indigo-500 transition-colors" 
+                        <input
+                           type="text"
+                           placeholder="Search customers..."
+                           value={searchTerm}
+                           onChange={(e) => setSearchTerm(e.target.value)}
+                           className="pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg text-sm w-32 sm:w-auto outline-none focus:border-indigo-500 transition-colors"
                         />
                      </div>
                   </div>
@@ -263,12 +263,12 @@ const AdminDashboard = () => {
                      <h3 className="font-bold text-slate-800 dark:text-white">Worker List</h3>
                      <div className="relative">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input 
-                           type="text" 
-                           placeholder="Search workers..." 
-                           value={searchTerm} 
-                           onChange={(e) => setSearchTerm(e.target.value)} 
-                           className="pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg text-sm w-32 sm:w-auto outline-none focus:border-indigo-500 transition-colors" 
+                        <input
+                           type="text"
+                           placeholder="Search workers..."
+                           value={searchTerm}
+                           onChange={(e) => setSearchTerm(e.target.value)}
+                           className="pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg text-sm w-32 sm:w-auto outline-none focus:border-indigo-500 transition-colors"
                         />
                      </div>
                   </div>

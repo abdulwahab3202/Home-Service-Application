@@ -254,8 +254,6 @@ const StoreContextProvider = (props) => {
           bookingId: bookingId, 
           creditPoints: 100 
       };
-      
-      console.log("Sending Payload:", payload);
 
       await axios.post(`${WORKER_URL}/work-assignment/accept`,
         payload,
@@ -302,7 +300,6 @@ const StoreContextProvider = (props) => {
         {}, 
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      console.log("Generate OTP API Response:", res.data);
       if (res.status === 200 || res.data.responseStatus === "SUCCESS") {
         toast.success("OTP sent to customer's email!");
         return res.data; 
