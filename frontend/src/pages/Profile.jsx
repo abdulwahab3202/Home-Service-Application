@@ -219,12 +219,9 @@ const Profile = () => {
                           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 max-w-xl leading-relaxed">
                             {job.description || "No description provided."}
                           </p>
-                          <div className="flex items-center gap-4 mt-3">
+                          <div className="flex items-center gap-4 mt-1">
                              <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
                                 <Clock size={12} /> Finished: {formatDate(job.completedOn || job.date)}
-                             </span>
-                             <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded">
-                                +{job.creditPoints} Credits
                              </span>
                           </div>
                         </div>

@@ -21,13 +21,10 @@ const StoreContextProvider = (props) => {
   
   const checkCompletion = (userData) => {
       if (!userData) return false;
-      
       if (userData.isNewUser === false) return true; 
-
       if (userData.role === 'ADMIN') return true;
       if (userData.role === 'WORKER') return !!userData.phone || !!userData.phoneNumber;
       if (userData.role === 'CUSTOMER') return (!!userData.phone || !!userData.phoneNumber) && !!userData.address;
-      
       return false; 
   };
   const isProfileComplete = checkCompletion(user); 
@@ -213,10 +210,13 @@ const StoreContextProvider = (props) => {
     setIsLoading(true); 
     try {
       const headers = { 'Authorization': `Bearer ${token}` };
+      
       const jobsRes = await axios.get(`${WORKER_URL}/worker/get-all-complaints`, { headers });
       setAvailableJobs(jobsRes.data.data || []);
+
       const myAssignsRes = await axios.get(`${WORKER_URL}/work-assignment/worker/${user.id}`, { headers });
       const myAssigns = myAssignsRes.data.data || [];
+
       const historyWithDetails = await Promise.all(myAssigns.map(async (assignment) => {
           try {
               const bookingRes = await axios.get(`${BOOKING_URL}/get/${assignment.bookingId}`, { headers });
@@ -228,8 +228,11 @@ const StoreContextProvider = (props) => {
           }
           return assignment;
       }));
+
       setWorkerHistory(historyWithDetails);
+
       const activeAssignment = historyWithDetails.find(a => ['ASSIGNED', 'IN_PROGRESS'].includes(a.status));
+
       if (activeAssignment) {
         setActiveJob({
           ...activeAssignment,
@@ -258,6 +261,8 @@ const StoreContextProvider = (props) => {
           bookingId: bookingId, 
           creditPoints: 100 
       };
+      
+      console.log("Sending Payload:", payload);
 
       await axios.post(`${WORKER_URL}/work-assignment/accept`,
         payload,
@@ -273,6 +278,7 @@ const StoreContextProvider = (props) => {
       throw error;
     } finally { setIsLoading(false); }
   };
+  
   const revokeJob = async () => {
     if (!activeJob?.assignmentId) return;
     setIsLoading(true);
@@ -304,6 +310,9 @@ const StoreContextProvider = (props) => {
         {}, 
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
+      
+      console.log("Generate OTP API Response:", res.data);
+
       if (res.status === 200 || res.data.responseStatus === "SUCCESS") {
         toast.success("OTP sent to customer's email!");
         return res.data; 
@@ -460,6 +469,16 @@ const StoreContextProvider = (props) => {
       throw error;
     } finally { setIsLoading(false); }
   };
+
+  useEffect(() => {
+    if (token && user?.role) {
+      if (user.role === 'CUSTOMER') {
+        fetchCustomerBookings();
+      } else if (user.role === 'WORKER') {
+        fetchWorkerDashboardData();
+      }
+    }
+  }, [token, user?.role, user?.id]);
 
   const contextValue = {
     token, user, role, isSignedIn, isProfileComplete, isLoading,
