@@ -228,21 +228,24 @@ const WorkerDashboard = () => {
             scrollbarPadding: false
           });
       } 
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        Swal.fire({
+          title: 'Incorrect OTP',
+          text: "The code you entered is invalid. Please check the email and try again.",
+          icon: 'warning',
+          confirmButtonColor: '#f59e0b',
+          scrollbarPadding: false
+        });
+      } 
       else {
-          Swal.fire({
-            title: 'Verification Failed',
-            text: response?.message || "Invalid OTP. Please check the code and try again.",
-            icon: 'error',
-            scrollbarPadding: false
-          });
+        Swal.fire({
+          title: 'Error',
+          text: error.response?.data?.message || "An unexpected network error occurred.",
+          icon: 'error',
+          scrollbarPadding: false
+        });
       }
-    } catch (e) {
-      Swal.fire({
-        title: 'Error',
-        text: "An unexpected network error occurred.",
-        icon: 'error',
-        scrollbarPadding: false
-      });
     }
   };
 
@@ -254,7 +257,7 @@ const WorkerDashboard = () => {
       showCancelButton: true,
       confirmButtonText: 'Yes, accept it!',
       confirmButtonColor: '#4f46e5',
-      scrollbarPadding: false // FIX APPLIED
+      scrollbarPadding: false
     });
     if (result.isConfirmed) { try { await acceptJob(id); } catch (e) {} }
   };
