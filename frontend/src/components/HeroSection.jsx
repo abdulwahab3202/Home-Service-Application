@@ -19,6 +19,7 @@ const HeroSection = () => {
         text: `You are logged in as a ${role}. Please use a Customer account to book services.`,
         icon: 'warning',
         confirmButtonColor: '#4f46e5',
+        scrollbarPadding:false,
         background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
         color: document.documentElement.classList.contains('dark') ? '#fff' : '#1e293b'
       });

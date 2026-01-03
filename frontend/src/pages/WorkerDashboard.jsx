@@ -217,28 +217,41 @@ const WorkerDashboard = () => {
   const handleSubmitOtp = async () => {
     const finalOtp = otp.join('');
     if (finalOtp.length !== 4) {
-      Swal.fire({ 
-          title: 'Invalid', 
-          text: "Enter 4-digit OTP", 
-          icon: 'warning',
-          scrollbarPadding: false // FIX APPLIED
+      Swal.fire({
+        title: 'Invalid Input',
+        text: "Please enter a 4-digit OTP",
+        icon: 'warning',
+        scrollbarPadding: false
       });
       return;
     }
     try {
-      const success = await completeJob(finalOtp); 
-      if(success) {
+      const response = await completeJob(finalOtp); 
+      if(response && (response.statusCode === 200 || response.success === true || response === true)) {
           setShowOtpModal(false); 
           setOtp(['', '', '', '']); 
           Swal.fire({
-              title: 'Success', 
-              text: 'Job completed!', 
-              icon: 'success',
-              scrollbarPadding: false // FIX APPLIED
+            icon: 'success',
+            title: 'Success',
+            text: 'Job completed successfully!',
+            scrollbarPadding: false
+          });
+      } 
+      else {
+          Swal.fire({
+            title: 'Verification Failed',
+            text: response?.message || "Invalid OTP. Please check the code and try again.",
+            icon: 'error',
+            scrollbarPadding: false
           });
       }
     } catch (e) {
-        // Handle error if needed
+      Swal.fire({
+        title: 'Error',
+        text: "An unexpected network error occurred.",
+        icon: 'error',
+        scrollbarPadding: false
+      });
     }
   };
 
