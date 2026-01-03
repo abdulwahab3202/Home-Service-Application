@@ -291,7 +291,7 @@ const AdminDashboard = () => {
                                     <div className="text-xs text-slate-500 dark:text-slate-400">{w.email}</div>
                                  </td>
                                  <td className="px-6 py-4">
-                                    <span className="bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-1 rounded text-xs font-bold border border-purple-100 dark:border-purple-800">
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">
                                        {w.department}
                                     </span>
                                  </td>
