@@ -1,11 +1,12 @@
 package com.fullstack.worker_service.service;
 
-import brevo.ApiClient;
-import brevo.ApiException;
-import brevo.Configuration;
-import brevo.auth.ApiKeyAuth;
-import brevo.api.TransactionalEmailsApi;
-import brevo.model.*;
+import sendinblue.ApiClient;
+import sendinblue.ApiException;
+import sendinblue.Configuration;
+import sendinblue.auth.ApiKeyAuth;
+import sibModel.*;
+import sibApi.TransactionalEmailsApi;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Service
 public class EmailService {
 
@@ -53,9 +55,8 @@ public class EmailService {
         toList.add(to);
         sendSmtpEmail.setTo(toList);
 
-        // 3. Set Content (Matches your requested format exactly)
+        // 3. Set Content
         sendSmtpEmail.setSubject("Service Completion Verification Code");
-
         String htmlContent = "<h3>Service Verification</h3>"
                 + "<p>Hello,</p>"
                 + "<p>Your worker has requested to mark the service as <b>COMPLETED</b>.</p>"
@@ -94,7 +95,6 @@ public class EmailService {
 
         sendSmtpEmail.setSubject("Service Completed: " + title);
 
-        // Matches your requested format exactly
         String htmlContent = "<h3>Hello " + username + ",</h3>"
                 + "<p>Your service request <b>" + title + "</b> (" + category + ") has been marked as <b>COMPLETED</b> by the worker.</p>"
                 + "<p>If you experience any issues, please contact the worker using the details below.</p>"
