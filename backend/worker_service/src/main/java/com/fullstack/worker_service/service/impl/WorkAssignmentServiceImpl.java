@@ -116,15 +116,13 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
             return buildError("Assignment not found", HttpStatus.NOT_FOUND);
         }
         WorkAssignment assignment = assignmentOpt.get();
-
         String otp = String.valueOf((int) (Math.random() * 9000) + 1000);
-
+        assignment.setCompletionOtp(otp);
+        assignmentRepo.save(assignment);
         try {
             String customerEmail = fetchCustomerEmail(assignment.getBookingId());
             if (customerEmail != null) {
                 emailService.sendOtpEmail(customerEmail, otp);
-                assignment.setCompletionOtp(otp);
-                assignmentRepo.save(assignment);
                 response.setMessage("OTP sent to customer email.");
                 response.setResponseStatus(ResponseStatus.SUCCESS);
                 response.setStatus(HttpStatus.OK);
@@ -134,7 +132,10 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
             }
         } catch (Exception e) {
             System.err.println("Email failed: " + e.getMessage());
-            return buildError("Failed to send OTP email. Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setMessage("OTP Generated but Email Failed: " + e.getMessage());
+            response.setResponseStatus(ResponseStatus.SUCCESS);
+            response.setStatus(HttpStatus.OK);
+            response.setStatusCode(HttpStatus.OK.value());
         }
         return response;
     }

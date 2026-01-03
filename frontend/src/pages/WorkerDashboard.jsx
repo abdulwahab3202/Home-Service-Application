@@ -134,32 +134,22 @@ const WorkerDashboard = () => {
       confirmButtonColor: '#4f46e5',
       denyButtonColor: '#10b981',
       cancelButtonColor: '#64748b',
+      scrollbarPadding: false,
       background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
-      color: document.documentElement.classList.contains('dark') ? '#fff' : '#1e293b',
-      scrollbarPadding: false
+      color: document.documentElement.classList.contains('dark') ? '#fff' : '#1e293b'
     });
 
     if (result.isConfirmed) {
       try {
         const response = await generateAssignmentOtp(activeJob.assignmentId);
-        console.log("OTP Response:", response);
+        
         const isSuccess = response && (
             response.statusCode === 200 || 
             response.status === 200 || 
-            response.success === true ||
-            response === 200 || 
-            response === "200"
+            response.success === true
         );
 
         if (isSuccess) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Email Sent',
-            text: 'OTP has been sent to the customer.',
-            timer: 2000,
-            showConfirmButton: false,
-            scrollbarPadding: false
-          });
           setOtp(['', '', '', '']);
           setShowOtpModal(true);
         } else {
@@ -171,6 +161,7 @@ const WorkerDashboard = () => {
           });
         }
       } catch (e) {
+        console.error(e);
         Swal.fire({
             title: 'Error', 
             text: 'Network error occurred', 
@@ -179,7 +170,7 @@ const WorkerDashboard = () => {
         });
       }
     } else if (result.isDenied) {
-      setOtp(['', '', '', '']);
+      setOtp(['', '', '', '']); 
       setShowOtpModal(true);
     }
   };
