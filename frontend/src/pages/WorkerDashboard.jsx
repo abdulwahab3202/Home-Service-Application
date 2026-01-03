@@ -246,6 +246,7 @@ const WorkerDashboard = () => {
           });
       }
     } catch (e) {
+      console.log(e);
       Swal.fire({
         title: 'Error',
         text: "An unexpected network error occurred.",
