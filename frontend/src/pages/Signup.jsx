@@ -239,7 +239,7 @@ const Signup = ({ theme, toggleTheme }) => {
                                                     className={inputBaseClass}
                                                 />
 
-                                            </div>
+                                            </div> 
                                         </div>
                                     ) : (
                                         <div>
