@@ -2,12 +2,14 @@ package com.fullstack.user_service.service.impl;
 
 import com.fullstack.user_service.client.WorkerClient;
 import com.fullstack.user_service.entity.Customer;
+import com.fullstack.user_service.entity.EmailVerification;
 import com.fullstack.user_service.entity.User;
 import com.fullstack.user_service.model.CommonResponse;
 import com.fullstack.user_service.model.ResponseStatus;
 import com.fullstack.user_service.model.UserContactDTO;
 import com.fullstack.user_service.model.UserRole;
 import com.fullstack.user_service.repository.CustomerRepository;
+import com.fullstack.user_service.repository.EmailVerificationRepository;
 import com.fullstack.user_service.repository.UserRepository;
 import com.fullstack.user_service.request.UserRequest;
 import com.fullstack.user_service.request.WorkerRequest;
@@ -29,6 +31,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -38,6 +41,8 @@ public class UserServiceImpl implements IUserService {
     private UserRepository userRepository;
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private EmailVerificationRepository emailVerificationRepository;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
@@ -51,12 +56,69 @@ public class UserServiceImpl implements IUserService {
     private String googleClientId;
     private static final String ADMIN_EMAIL = "homefixservice507@gmail.com";
 
+
+    @Override
+    public CommonResponse sendVerificationOtp(String email) {
+        if (userRepository.findByEmail(email) != null) {
+            return buildError("Email is already registered. Please Login.", HttpStatus.BAD_REQUEST);
+        }
+
+        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
+
+        EmailVerification verification = new EmailVerification();
+        verification.setEmail(email);
+        verification.setOtp(otp);
+        verification.setExpiryDate(LocalDateTime.now().plusMinutes(5));
+
+        emailVerificationRepository.save(verification);
+
+        try {
+            workerClient.sendRegistrationOtp(email, otp);
+        } catch (Exception e) {
+            return buildError("Failed to send email: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        CommonResponse response = new CommonResponse();
+        response.setMessage("OTP Sent Successfully");
+        response.setResponseStatus(ResponseStatus.SUCCESS);
+        response.setStatus(HttpStatus.OK);
+        response.setStatusCode(200);
+        return response;
+    }
+
+    @Override
+    public CommonResponse verifyOtp(String email, String otp) {
+        EmailVerification verification = emailVerificationRepository.findById(email);
+
+        if (verification == null) {
+            return buildError("OTP expired or email not found. Please request a new code.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!verification.getOtp().equals(otp)) {
+            return buildError("Invalid OTP.", HttpStatus.BAD_REQUEST);
+        }
+
+        CommonResponse response = new CommonResponse();
+        response.setMessage("Email Verified Successfully");
+        response.setResponseStatus(ResponseStatus.SUCCESS);
+        response.setStatus(HttpStatus.OK);
+        response.setStatusCode(200);
+        return response;
+    }
+
     @Override
     public CommonResponse register(UserRequest userRequest) {
         try {
             validateRegistrationRequest(userRequest);
         } catch (IllegalArgumentException e) {
             return buildError(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        if ("LOCAL".equalsIgnoreCase(userRequest.getProvider()) || userRequest.getProvider() == null) {
+            CommonResponse verifyCheck = verifyOtp(userRequest.getEmail(), userRequest.getOtp());
+            if (verifyCheck.getStatusCode() != 200) {
+                return verifyCheck;
+            }
         }
 
         if (userRepository.findByEmail(userRequest.getEmail()) != null) {
@@ -77,8 +139,6 @@ public class UserServiceImpl implements IUserService {
 
         if (ADMIN_EMAIL.equalsIgnoreCase(userRequest.getEmail())) {
             user.setRole(UserRole.ADMIN);
-        } else {
-            user.setRole(UserRole.CUSTOMER);
         }
 
         User savedUser = userRepository.save(user);
@@ -93,29 +153,11 @@ public class UserServiceImpl implements IUserService {
                     break;
             }
         } catch (Exception e) {
-
-            boolean profileActuallyExists = false;
-            try {
-                if (savedUser.getRole() == UserRole.WORKER) {
-                    CommonResponse check = workerClient.getWorkerById(savedUser.getId());
-                    if (check != null && "SUCCESS".equalsIgnoreCase(String.valueOf(check.getResponseStatus()))) {
-                        profileActuallyExists = true;
-                    }
-                } else if (savedUser.getRole() == UserRole.CUSTOMER) {
-                    if (customerRepository.findByUserId(savedUser.getId()) != null) {
-                        profileActuallyExists = true;
-                    }
-                }
-            } catch (Exception checkEx) {
-            }
-
-            if (profileActuallyExists) {
-                System.err.println("Recovered from Registration Error: Profile was created despite exception: " + e.getMessage());
-            } else {
-                userRepository.deleteUserById(savedUser.getId());
-                return buildError("Failed to create profile. Registration rolled back. Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-            }
+            userRepository.deleteUserById(savedUser.getId());
+            return buildError("Registration failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+
+        emailVerificationRepository.deleteById(userRequest.getEmail());
 
         return generateLoginResponse(savedUser, "User Created Successfully", HttpStatus.CREATED);
     }
@@ -164,9 +206,7 @@ public class UserServiceImpl implements IUserService {
                     existingUser.setRole(UserRole.ADMIN);
                     userRepository.save(existingUser);
                 }
-
                 return generateLoginResponse(existingUser, "Login Successful", HttpStatus.OK);
-
             } else {
                 if (ADMIN_EMAIL.equalsIgnoreCase(email)) {
                     User newAdmin = new User();
@@ -175,7 +215,6 @@ public class UserServiceImpl implements IUserService {
                     newAdmin.setRole(UserRole.ADMIN);
                     newAdmin.setPassword(passwordEncoder.encode("GOOGLE_AUTH_ADMIN_SECURE"));
                     userRepository.save(newAdmin);
-
                     return generateLoginResponse(newAdmin, "Admin Account Created & Logged In", HttpStatus.OK);
                 }
 
@@ -217,10 +256,6 @@ public class UserServiceImpl implements IUserService {
 
         if (user == null) {
             return buildError("User not found", HttpStatus.NOT_FOUND);
-        }
-
-        if (userRequest.getRole() != null && !userRequest.getRole().equals(user.getRole())) {
-            return buildError("Role cannot be changed", HttpStatus.BAD_REQUEST);
         }
 
         if (userRequest.getName() != null && !userRequest.getName().isEmpty()) {
@@ -303,17 +338,13 @@ public class UserServiceImpl implements IUserService {
 
         if (user.getRole() == UserRole.ADMIN) return buildError("Cannot delete Admin", HttpStatus.FORBIDDEN);
 
-        try {
-            if (user.getRole() == UserRole.WORKER) workerClient.deleteWorkerProfile(id);
-            if (user.getRole() == UserRole.CUSTOMER) customerRepository.deleteByUserId(id);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        if (user.getRole() == UserRole.WORKER) workerClient.deleteWorkerProfile(id);
+
+        if (user.getRole() == UserRole.CUSTOMER) customerRepository.deleteByUserId(id);
 
         userRepository.deleteUserById(id);
         return new CommonResponse(HttpStatus.OK, ResponseStatus.SUCCESS, "User Deleted Successfully", null, 200);
     }
-
 
     private void createCustomerProfile(User user, UserRequest request) {
         Customer customer = new Customer();

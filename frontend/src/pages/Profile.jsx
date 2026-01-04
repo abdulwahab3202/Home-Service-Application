@@ -151,7 +151,6 @@ const Profile = () => {
                   {isEditing ? (
                       <div className="relative">
                         <input disabled value={formData.department} className="w-full p-3 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-500 dark:text-slate-400 cursor-not-allowed" />
-                        <span className="absolute right-3 top-3.5 text-xs text-slate-400 dark:text-slate-500 italic">Cannot change</span>
                       </div>
                   ) : (
                     <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><Briefcase size={18} className="text-slate-400 dark:text-slate-500"/> {user?.department || "N/A"}</div>

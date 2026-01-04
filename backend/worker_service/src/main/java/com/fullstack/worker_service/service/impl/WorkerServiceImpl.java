@@ -7,6 +7,7 @@ import com.fullstack.worker_service.model.CommonResponse;
 import com.fullstack.worker_service.model.ResponseStatus;
 import com.fullstack.worker_service.repository.WorkerRepository;
 import com.fullstack.worker_service.request.WorkerRequest;
+import com.fullstack.worker_service.service.EmailService;
 import com.fullstack.worker_service.service.IWorkerService;
 import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
@@ -35,6 +36,9 @@ public class WorkerServiceImpl implements IWorkerService {
     @Autowired
     private UserClient userClient;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public CommonResponse createWorkerProfile(WorkerRequest workerRequest){
         CommonResponse response = new CommonResponse();
@@ -54,6 +58,17 @@ public class WorkerServiceImpl implements IWorkerService {
         response.setData(worker);
         response.setStatus(HttpStatus.CREATED);
         response.setStatusCode(HttpStatus.CREATED.value());
+        return response;
+    }
+
+    @Override
+    public CommonResponse sendRegistrationEmail(String email, String otp) {
+        emailService.sendRegistrationOtp(email, otp);
+        CommonResponse response = new CommonResponse();
+        response.setResponseStatus(ResponseStatus.SUCCESS);
+        response.setMessage("OTP Sent");
+        response.setStatus(HttpStatus.OK);
+        response.setStatusCode(200);
         return response;
     }
 

@@ -28,7 +28,6 @@ public class EmailService {
 
     private TransactionalEmailsApi apiInstance;
 
-    // Initialize API Client
     private TransactionalEmailsApi getApiInstance() {
         if (apiInstance == null) {
             ApiClient defaultClient = Configuration.getDefaultApiClient();
@@ -37,6 +36,40 @@ public class EmailService {
             apiInstance = new TransactionalEmailsApi();
         }
         return apiInstance;
+    }
+
+    public void sendRegistrationOtp(String toEmail, String otp) {
+        SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
+
+        SendSmtpEmailSender sender = new SendSmtpEmailSender();
+        sender.setEmail(senderEmail);
+        sender.setName("HomeFix Security");
+        sendSmtpEmail.setSender(sender);
+
+        List<SendSmtpEmailTo> toList = new ArrayList<>();
+        SendSmtpEmailTo to = new SendSmtpEmailTo();
+        to.setEmail(toEmail);
+        toList.add(to);
+        sendSmtpEmail.setTo(toList);
+
+        sendSmtpEmail.setSubject("Verify your HomeFix Account");
+        String htmlContent = "<div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>"
+                + "<h2>Welcome to HomeFix!</h2>"
+                + "<p>Please use the following One-Time Password (OTP) to verify your email address and complete your registration:</p>"
+                + "<h1 style='color: #4f46e5; font-size: 32px; letter-spacing: 5px;'>" + otp + "</h1>"
+                + "<p>This code is valid for <b>5 minutes</b>.</p>"
+                + "<p>If you did not request this code, please ignore this email.</p>"
+                + "</div>";
+
+        sendSmtpEmail.setHtmlContent(htmlContent);
+
+        try {
+            getApiInstance().sendTransacEmail(sendSmtpEmail);
+            logger.info("Registration OTP sent successfully to {}", toEmail);
+        } catch (ApiException e) {
+            logger.error("Failed to send Registration OTP: {}", e.getMessage());
+            throw new RuntimeException("Email Service Error: " + e.getMessage());
+        }
     }
 
     public void sendOtpEmail(String toEmail, String otp) {

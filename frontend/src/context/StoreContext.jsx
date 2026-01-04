@@ -98,6 +98,26 @@ const StoreContextProvider = (props) => {
     syncProfile();
   }, [token]);
 
+  const loginUser = async (credentials) => {
+    setIsLoading(true);
+    try {
+      const res = await axios.post(`${USER_URL}/login`, credentials);
+      if (res.data.responseStatus === "SUCCESS") {
+        const { token: newToken, user: userData } = res.data.data;
+        const userWithFlag = { ...userData, isNewUser: false };
+        saveAuth(newToken, userWithFlag);
+        toast.success(`Welcome back, ${userData.name}!`);
+        return { success: true, role: userData.role };
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      toast.error(error.response?.data?.message || "Invalid Email or Password");
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const googleLogin = async (idToken) => {
     setIsLoading(true);
     try {
@@ -484,7 +504,7 @@ const StoreContextProvider = (props) => {
     token, user, role, isSignedIn, isProfileComplete, isLoading,
     workerHistory, adminStats, bookings, availableJobs, activeJob, 
     allBookings, customersList, workersList,   
-    googleLogin, registerUser, logout, 
+    loginUser, googleLogin, registerUser, logout, 
     fetchCustomerBookings, createBooking, updateBooking,
     fetchWorkerDashboardData, fetchAdminDashboardData,
     acceptJob, revokeJob, generateAssignmentOtp,

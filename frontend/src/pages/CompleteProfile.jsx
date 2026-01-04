@@ -157,11 +157,10 @@ const CompleteProfile = () => {
                                 <div className="relative">
                                     <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
                                     <select name="department" value={formData.department} onChange={handleChange} className={`${inputBaseClass} bg-white dark:bg-slate-800 appearance-none`}>
-                                        <option value="Plumbing">Plumbing</option>
-                                        <option value="Electrical">Electrical</option>
-                                        <option value="Cleaning">Cleaning</option>
-                                        <option value="Carpentry">Carpentry</option>
-                                        <option value="Painting">Painting</option>
+                                        <option value="Plumber">Plumber</option>
+                                        <option value="EleElectricianctrical">Electrician</option>
+                                        <option value="Cleaner">Cleaner</option>
+                                        <option value="Carpenter">Carpenter</option>
                                     </select>
                                 </div>
                             </div>

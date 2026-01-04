@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import React, { useContext, useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { toast } from 'react-toastify';
 import Navbar from './components/Navbar';
@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import CompleteProfile from './pages/CompleteProfile';
 import Profile from './pages/Profile';
 import CustomerDashboard from './pages/CustomerDashboard';
@@ -16,7 +17,31 @@ import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isSignedIn } = useContext(StoreContext);
+
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) return savedTheme;
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   const handleCtaClick = () => {
     if (isSignedIn) {
@@ -27,19 +52,31 @@ function App() {
     }
   };
 
+  const isAuthPage = ['/login', '/signup', '/complete-profile'].includes(location.pathname);
+
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
-      <Navbar />
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+      
+      {!isAuthPage && <Navbar theme={theme} toggleTheme={toggleTheme} />}
+
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home onReportClick={handleCtaClick} />} />
-          <Route path="/complete-profile" element={<CompleteProfile />} />
+          
           <Route path="/login" element={
               <PublicRoute>
-                <Login />
+                <Login theme={theme} toggleTheme={toggleTheme} />
               </PublicRoute>
             } 
           />
+          <Route path="/signup" element={
+              <PublicRoute>
+                <Signup theme={theme} toggleTheme={toggleTheme} />
+              </PublicRoute>
+            } 
+          />
+          <Route path="/complete-profile" element={<CompleteProfile />} />
+
           <Route path="/profile" element={
             <ProtectedRoute allowedRoles={['CUSTOMER', 'WORKER', 'ADMIN']}>
               <Profile />
@@ -62,7 +99,8 @@ function App() {
           } />
         </Routes>
       </main>
-      <Footer />
+      
+      {!isAuthPage && <Footer />}
     </div>
   );
 }

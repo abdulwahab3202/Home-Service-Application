@@ -33,6 +33,26 @@ public class UserController implements IUserController {
     }
 
     @Override
+    public ResponseEntity<CommonResponse> sendOtp(String email) {
+        try {
+            CommonResponse response = userService.sendVerificationOtp(email);
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception e) {
+            return exceptionHandler(e, "Send OTP");
+        }
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> verifyOtp(String email, String otp) {
+        try {
+            CommonResponse response = userService.verifyOtp(email, otp);
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception e) {
+            return exceptionHandler(e, "Verify OTP");
+        }
+    }
+
+    @Override
     public ResponseEntity<CommonResponse> login(UserRequest userRequest) {
         try {
             CommonResponse response = userService.login(userRequest);

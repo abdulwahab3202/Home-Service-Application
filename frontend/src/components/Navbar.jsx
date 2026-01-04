@@ -3,34 +3,18 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { StoreContext } from '../context/StoreContext';
 import {
   LogOut, User, Menu, X, Wrench, ChevronDown,
-  LayoutDashboard, Settings, Moon, Sun, Sparkles
+  LayoutDashboard, Settings, Moon, Sun
 } from 'lucide-react';
 
-const Navbar = () => {
+const Navbar = ({ theme, toggleTheme }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const dropdownRef = useRef(null);
-
   const { token, user, logout } = useContext(StoreContext);
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -91,10 +75,11 @@ const Navbar = () => {
               Home<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-500">Fix</span>
             </span>
           </div>
+          
           <div className="hidden md:flex items-center space-x-1 bg-slate-50 dark:bg-slate-900/50 p-1 rounded-full border border-slate-200 dark:border-slate-800/50">
             <NavPill onClick={() => handleScrollToSection('top')}>Home</NavPill>
-            <NavPill onClick={() => handleScrollToSection('features')}>Services</NavPill>
             <NavPill onClick={() => handleScrollToSection('how-it-works')}>Process</NavPill>
+            <NavPill onClick={() => handleScrollToSection('features')}>Services</NavPill>
             <NavPill onClick={() => handleScrollToSection('about')}>About</NavPill>
           </div>
 
@@ -107,18 +92,12 @@ const Navbar = () => {
             </button>
 
             {!token ? (
-              <Link
-                to="/login"
-                className="px-6 py-2.5 text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-full hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-              >
+              <Link to="/login" className="px-6 py-2.5 text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-full hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
                 Sign in
               </Link>
             ) : (
               <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center gap-3 pl-1 pr-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-indigo-500 transition-all"
-                >
+                <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 pl-1 pr-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-indigo-500 transition-all">
                   <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                     <User size={16} />
                   </div>
@@ -139,10 +118,7 @@ const Navbar = () => {
                       <DropdownItem to={getDashboardRoute()} icon={<LayoutDashboard size={16} />} text="Dashboard" />
                     </div>
                     <div className="px-2 pb-2">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
-                      >
+                      <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors">
                         <LogOut size={16} /> Sign Out
                       </button>
                     </div>
@@ -167,14 +143,7 @@ const Navbar = () => {
           <MobileLink onClick={() => handleScrollToSection('top')}>Home</MobileLink>
           <MobileLink onClick={() => handleScrollToSection('how-it-works')}>Process</MobileLink>
           <MobileLink onClick={() => handleScrollToSection('features')}>Services</MobileLink>
-          <MobileLink
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              navigate('/profile');
-            }}
-          >
-            Profile
-          </MobileLink>
+          <MobileLink onClick={() => { setIsMobileMenuOpen(false); navigate('/profile'); }}>Profile</MobileLink>
           {!token ? (
             <Link to="/login" className="mt-4 w-full py-3 bg-indigo-600 text-white font-bold rounded-xl text-center">Sign In</Link>
           ) : (
@@ -190,10 +159,7 @@ const Navbar = () => {
 };
 
 const NavPill = ({ onClick, children }) => (
-  <button
-    onClick={onClick}
-    className="px-5 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-full transition-all duration-300"
-  >
+  <button onClick={onClick} className="px-5 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-full transition-all duration-300">
     {children}
   </button>
 );

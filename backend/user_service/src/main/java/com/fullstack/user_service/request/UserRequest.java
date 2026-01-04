@@ -15,4 +15,5 @@ public class UserRequest {
     private int pinCode;
     private String department;
     private String provider;
+    private String otp;
 }

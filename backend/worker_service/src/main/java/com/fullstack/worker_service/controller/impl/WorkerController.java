@@ -30,6 +30,16 @@ public class WorkerController implements IWorkerController {
     }
 
     @Override
+    public ResponseEntity<CommonResponse> sendRegistrationOtp(String email, String otp) {
+        try {
+            CommonResponse response = workerService.sendRegistrationEmail(email,otp);
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception e) {
+            return exceptionHandler(e, "Send Registration Otp");
+        }
+    }
+
+    @Override
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommonResponse> getAllWorkers() {
         try {

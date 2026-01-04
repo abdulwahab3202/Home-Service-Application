@@ -9,6 +9,10 @@ public interface IUserService {
 
     CommonResponse register(UserRequest userRequest);
 
+    CommonResponse sendVerificationOtp(String email);
+
+    CommonResponse verifyOtp(String email, String otp);
+
     CommonResponse login(UserRequest userRequest);
 
     CommonResponse handleGoogleLogin(String idToken);

@@ -11,6 +11,9 @@ public interface IWorkerController {
     @PostMapping("/create")
     ResponseEntity<CommonResponse> createWorkerProfile(@RequestBody WorkerRequest workerRequest);
 
+    @PostMapping("/public/send-registration-otp")
+    ResponseEntity<CommonResponse> sendRegistrationOtp(@RequestParam String email, @RequestParam String otp);
+
     @GetMapping("get-all")
     ResponseEntity<CommonResponse> getAllWorkers();
 

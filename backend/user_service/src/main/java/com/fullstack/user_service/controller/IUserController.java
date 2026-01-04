@@ -13,6 +13,12 @@ public interface IUserController {
     @PostMapping("/register")
     ResponseEntity<CommonResponse> register(@RequestBody UserRequest userRequest);
 
+    @PostMapping("/auth/send-otp")
+    ResponseEntity<CommonResponse> sendOtp(@RequestParam String email);
+
+    @PostMapping("/auth/verify-otp")
+    ResponseEntity<CommonResponse> verifyOtp(@RequestParam String email, @RequestParam String otp);
+
     @PostMapping("/login")
     ResponseEntity<CommonResponse> login(@RequestBody UserRequest userRequest);
 

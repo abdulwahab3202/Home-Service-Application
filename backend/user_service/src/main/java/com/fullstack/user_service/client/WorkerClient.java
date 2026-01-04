@@ -11,6 +11,9 @@ public interface WorkerClient {
     @PostMapping("/worker/create")
     CommonResponse createWorkerProfile(@RequestBody WorkerRequest workerRequest);
 
+    @PostMapping("/worker/public/send-registration-otp")
+    CommonResponse sendRegistrationOtp(@RequestParam("email") String email, @RequestParam("otp") String otp);
+
     @GetMapping("/worker/get/{workerId}")
     CommonResponse getWorkerById(@PathVariable("workerId") String workerId);
 

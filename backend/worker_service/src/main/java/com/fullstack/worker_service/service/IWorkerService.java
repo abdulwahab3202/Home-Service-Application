@@ -8,6 +8,8 @@ public interface IWorkerService {
 
     CommonResponse createWorkerProfile(WorkerRequest workerRequest);
 
+    CommonResponse sendRegistrationEmail(String email, String otp);
+
     CommonResponse getAllWorkers();
 
     CommonResponse getWorkerById(String workerId);

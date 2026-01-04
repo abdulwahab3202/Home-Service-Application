@@ -26,12 +26,16 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
 
     @Autowired
     private WorkAssignmentRepository assignmentRepo;
+
     @Autowired
     private WorkerRepository workerRepo;
+
     @Autowired
     private BookingClient bookingClient;
+
     @Autowired
     private UserClient userClient;
+
     @Autowired
     private EmailService emailService;
 
