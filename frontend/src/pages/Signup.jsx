@@ -4,7 +4,7 @@ import axios from 'axios';
 import { StoreContext } from '../context/StoreContext';
 import {
     User, Mail, Lock, MapPin, Phone, Briefcase, Eye, EyeOff, Droplets, Zap, Wrench,
-    Hammer, CheckCircle2, Loader2, ArrowRight, Building, Hash, Wrench, Moon, Sun
+    Hammer, CheckCircle2, Loader2, ArrowRight, Building, Hash, Moon, Sun
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
