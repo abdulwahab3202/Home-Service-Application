@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { StoreContext } from '../context/StoreContext';
 import {
-    User, Mail, Lock, MapPin, Phone, Briefcase, Eye, EyeOff,
-    CheckCircle2, Loader2, ArrowRight, Building, Hash, Wrench, Moon, Sun
+    User, Mail, Lock, MapPin, Phone, Briefcase, Eye, EyeOff, Droplets, Zap, Wrench,
+    Hammer, CheckCircle2, Loader2, ArrowRight, Building, Hash, Wrench, Moon, Sun
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -29,6 +29,13 @@ const Signup = ({ theme, toggleTheme }) => {
     });
 
     const departments = ["Plumber", "Electrician", "Cleaner", "Carpenter"];
+    const departmentIcons = {
+        Plumber: <Droplets size={16} />,
+        Electrician: <Zap size={16} />,
+        Cleaner: <Wrench size={16} />,
+        Carpenter: <Hammer size={16} />
+    };
+
 
     const handleSendOtp = async () => {
         if (!formData.email || !formData.email.includes('@')) {
@@ -84,7 +91,6 @@ const Signup = ({ theme, toggleTheme }) => {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 px-4 transition-colors duration-500 flex justify-center relative">
 
-            {/* --- STANDALONE HEADER --- */}
             <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-20">
                 <Link to="/" className="flex items-center gap-2 group">
                     <div className="relative flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-lg text-white shadow-lg">
@@ -110,7 +116,6 @@ const Signup = ({ theme, toggleTheme }) => {
 
                 <form onSubmit={handleRegister} className="p-8 space-y-8">
 
-                    {/* SECTION 1: IDENTITY */}
                     <div className="space-y-4">
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">1. Identity & Login</h3>
 
@@ -183,7 +188,6 @@ const Signup = ({ theme, toggleTheme }) => {
                         </div>
                     </div>
 
-                    {/* SECTION 2: ROLE & DETAILS */}
                     {emailStatus === 'VERIFIED' && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
@@ -245,12 +249,16 @@ const Signup = ({ theme, toggleTheme }) => {
                                                     <div
                                                         key={dept}
                                                         onClick={() => setFormData({ ...formData, department: dept })}
-                                                        className={`px-3 py-3 text-sm font-medium text-center rounded-xl border cursor-pointer transition-all flex items-center justify-center gap-2 ${formData.department === dept ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400'}`}
+                                                        className={`px-3 py-3 text-sm font-medium text-center rounded-xl border cursor-pointer transition-all flex items-center justify-center gap-2 ${formData.department === dept
+                                                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+                                                                : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400'
+                                                            }`}
                                                     >
-                                                        <Wrench size={16} /> {dept}
+                                                        {departmentIcons[dept]} {dept}
                                                     </div>
                                                 ))}
                                             </div>
+
                                         </div>
                                     )}
                                 </div>
