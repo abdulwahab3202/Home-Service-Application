@@ -250,7 +250,9 @@ const WorkerDashboard = () => {
       showCancelButton: true,
       confirmButtonText: 'Yes, accept it!',
       confirmButtonColor: '#4f46e5',
-      scrollbarPadding: false
+      scrollbarPadding: false,
+      background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+      color: document.documentElement.classList.contains('dark') ? '#fff' : '#1e293b'
     });
     if (result.isConfirmed) { try { await acceptJob(id); } catch (e) {} }
   };
@@ -269,7 +271,6 @@ const WorkerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 transition-colors duration-500">
-      {/* OTP MODAL */}
       {showOtpModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-in zoom-in-95 border border-slate-100 dark:border-slate-800">
@@ -296,7 +297,6 @@ const WorkerDashboard = () => {
         </div>
       )}
 
-      {/* Selected Image Modal */}
       {selectedImage && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4" onClick={() => setSelectedImage(null)}>
           <button className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 p-2 rounded-full"><X size={24} /></button>
