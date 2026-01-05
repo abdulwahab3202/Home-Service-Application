@@ -20,10 +20,10 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
 
   const categories = [
-    { id: 'Plumbing', icon: <Droplets size={20} />, label: 'Plumbing' },
+    { id: 'Plumber', icon: <Droplets size={20} />, label: 'Plumber' },
     { id: 'Electrician', icon: <Zap size={20} />, label: 'Electrician' },
-    { id: 'Cleaning', icon: <Wrench size={20} />, label: 'Cleaning' },
-    { id: 'Carpentry', icon: <Hammer size={20} />, label: 'Carpentry' },
+    { id: 'Cleaner', icon: <Wrench size={20} />, label: 'Cleaner' },
+    { id: 'Carpenter', icon: <Hammer size={20} />, label: 'Carpenter' },
   ];
 
   const handleFileChange = (e) => {
