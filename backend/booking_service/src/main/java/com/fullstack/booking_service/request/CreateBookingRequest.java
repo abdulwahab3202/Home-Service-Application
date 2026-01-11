@@ -6,14 +6,14 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class CreateBookingRequest {
     private String title;
     private String description;
     private String serviceCategory;
+    private String address;
     private String district;
     private String taluka;
-    private String address;
     private MultipartFile image;
 }

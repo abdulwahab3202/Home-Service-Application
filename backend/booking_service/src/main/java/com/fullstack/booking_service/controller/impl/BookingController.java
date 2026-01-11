@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping("booking")
 @RestController
@@ -25,15 +25,8 @@ public class BookingController implements IBookingController {
     @Override
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CommonResponse> createBooking(HttpServletRequest request,
-                                                        String title,
-                                                        String description,
-                                                        String serviceCategory,
-                                                        String district,
-                                                        String taluka,
-                                                        String address,
-                                                        MultipartFile image) {
+                                                        @ModelAttribute CreateBookingRequest bookingRequest) {
         try {
-            CreateBookingRequest bookingRequest = new CreateBookingRequest(title, description, serviceCategory, district, taluka, address, image);
             CommonResponse response = bookingService.createBooking(request, bookingRequest);
             return ResponseEntity.status(response.getStatusCode()).body(response);
         } catch (Exception e) {

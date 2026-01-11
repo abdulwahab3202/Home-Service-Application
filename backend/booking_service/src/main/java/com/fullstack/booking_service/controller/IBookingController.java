@@ -1,22 +1,20 @@
 package com.fullstack.booking_service.controller;
 
 import com.fullstack.booking_service.model.CommonResponse;
+import com.fullstack.booking_service.request.CreateBookingRequest;
 import com.fullstack.booking_service.request.UpdateBookingRequest;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IBookingController {
 
-    @PostMapping("/create")
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<CommonResponse> createBooking(
             HttpServletRequest request,
-            @RequestParam("title") String title,
-            @RequestParam("description") String description,
-            @RequestParam("serviceCategory") String serviceCategory,
-            @RequestParam("address") String address,
-            @RequestPart("image") MultipartFile image
+            @ModelAttribute CreateBookingRequest bookingRequest
     );
 
     @GetMapping("/get-all")
