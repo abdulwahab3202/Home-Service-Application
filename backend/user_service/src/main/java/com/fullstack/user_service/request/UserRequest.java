@@ -11,7 +11,6 @@ public class UserRequest {
     private UserRole role;
     private String phoneNumber;
     private String address;
-    private String city;
     private int pinCode;
     private String district;
     private String taluka;

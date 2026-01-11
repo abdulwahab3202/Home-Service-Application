@@ -351,7 +351,6 @@ public class UserServiceImpl implements IUserService {
         customer.setUserId(user.getId());
         customer.setPhoneNumber(request.getPhoneNumber());
         customer.setAddress(request.getAddress());
-        customer.setCity(request.getCity());
         customer.setPinCode(request.getPinCode());
         customer.setDistrict(request.getDistrict());
         customer.setTaluka(request.getTaluka());
@@ -382,7 +381,6 @@ public class UserServiceImpl implements IUserService {
         if (customer != null) {
             if (request.getPhoneNumber() != null) customer.setPhoneNumber(request.getPhoneNumber());
             if (request.getAddress() != null) customer.setAddress(request.getAddress());
-            if (request.getCity() != null) customer.setCity(request.getCity());
             if (request.getPinCode() != 0) customer.setPinCode(request.getPinCode());
             customerRepository.save(customer);
         }
@@ -426,7 +424,6 @@ public class UserServiceImpl implements IUserService {
 
         switch (request.getRole()) {
             case CUSTOMER:
-                if (request.getCity() == null) throw new IllegalArgumentException("City is required");
                 if (request.getAddress() == null) throw new IllegalArgumentException("Address is required");
                 if (request.getPhoneNumber() == null) throw new IllegalArgumentException("Phone Number is required");
                 if (request.getPinCode() == 0) throw new IllegalArgumentException("Pin Code is required");
@@ -467,7 +464,6 @@ public class UserServiceImpl implements IUserService {
         res.setRole(user.getRole().name());
         res.setPhoneNumber(customer.getPhoneNumber());
         res.setAddress(customer.getAddress());
-        res.setCity(customer.getCity());
         res.setPinCode(customer.getPinCode());
         res.setCreatedOn(user.getCreatedOn());
         res.setUpdateOn(user.getUpdatedOn());

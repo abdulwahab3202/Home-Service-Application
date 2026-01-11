@@ -11,7 +11,6 @@ public class CustomerResponse {
     private String role;
     private String phoneNumber;
     private String address;
-    private String city;
     private int pinCode;
     private Date createdOn;
     private Date updateOn;

@@ -152,9 +152,10 @@ const StoreContextProvider = (props) => {
             ...backendUser,
             phone: formData.phoneNumber,
             address: formData.address,
-            city: formData.city,
-            pinCode: formData.pinCode,
+            pinCode: formData.pinCode, // Removed city here
             department: formData.department,
+            district: formData.district,
+            taluka: formData.taluka,
             isNewUser: false
         };
         saveAuth(newToken, completeUser);
@@ -238,15 +239,15 @@ const StoreContextProvider = (props) => {
       const myAssigns = myAssignsRes.data.data || [];
 
       const historyWithDetails = await Promise.all(myAssigns.map(async (assignment) => {
-          try {
-              const bookingRes = await axios.get(`${BOOKING_URL}/get/${assignment.bookingId}`, { headers });
-              if (bookingRes.data.responseStatus === "SUCCESS") {
-                  return { ...assignment, ...bookingRes.data.data }; 
-              }
-          } catch (e) {
-              console.error(`Failed to load details for booking ${assignment.bookingId}`);
-          }
-          return assignment;
+        try {
+            const bookingRes = await axios.get(`${BOOKING_URL}/get/${assignment.bookingId}`, { headers });
+            if (bookingRes.data.responseStatus === "SUCCESS") {
+                return { ...assignment, ...bookingRes.data.data }; 
+            }
+        } catch (e) {
+            console.error(`Failed to load details for booking ${assignment.bookingId}`);
+        }
+        return assignment;
       }));
 
       setWorkerHistory(historyWithDetails);
