@@ -232,9 +232,18 @@ const StoreContextProvider = (props) => {
     try {
       const headers = { 'Authorization': `Bearer ${token}` };
       
-      const jobsRes = await axios.get(`${WORKER_URL}/worker/get-all-complaints`, { headers });
+      // WRAP THIS IN TRY/CATCH specifically
+      let jobsRes = { data: { data: [] } };
+      try {
+          jobsRes = await axios.get(`${WORKER_URL}/worker/get-all-complaints`, { headers });
+          console.log(jobsRes);
+      } catch (err) {
+          console.error("Worker Service (Complaints) failed:", err);
+          // Optional: toast.warning("Could not fetch new jobs. Service may be busy.");
+      }
       setAvailableJobs(jobsRes.data.data || []);
 
+      // Continue with assignments...
       const myAssignsRes = await axios.get(`${WORKER_URL}/work-assignment/worker/${user.id}`, { headers });
       const myAssigns = myAssignsRes.data.data || [];
 

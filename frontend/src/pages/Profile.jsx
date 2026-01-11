@@ -26,7 +26,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('details'); 
   
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', address: '', city: '', pincode: '', department: '',
+    name: '', email: '', phone: '', address: '',  pincode: '', department: '',
     district: '', taluka: '' // Added fields
   });
 
@@ -39,7 +39,6 @@ const Profile = () => {
         email: user.email || '',
         phone: user.phoneNumber || user.phone || '', 
         address: user.address || '',
-        city: user.city || '',
         pincode: user.pinCode || user.pincode || '', 
         department: user.department || '',
         district: user.district || '', // Map District
@@ -187,11 +186,6 @@ const Profile = () => {
 
               {role === 'CUSTOMER' && (
                 <>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">City</label>
-                    {isEditing ? <input name="city" value={formData.city} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" /> 
-                    : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><Building size={18} className="text-slate-400 dark:text-slate-500"/> {user?.city || "Not provided"}</div>}
-                  </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Address</label>
                     {isEditing ? <input name="address" value={formData.address} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" /> 
