@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,13 +44,12 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
     public CommonResponse acceptBooking(WorkAssignmentRequest req) {
         CommonResponse response = new CommonResponse();
 
-        WorkAssignment existing = assignmentRepo.findByBookingId(req.getBookingId());
-        if (existing != null && "ASSIGNED".equalsIgnoreCase(existing.getStatus())) {
-            return buildError("Booking already assigned", HttpStatus.BAD_REQUEST);
+        WorkAssignment activeAssignment = assignmentRepo.findByBookingId(req.getBookingId());
+        if (activeAssignment != null && "ASSIGNED".equalsIgnoreCase(activeAssignment.getStatus())) {
+            return buildError("Booking already assigned to a worker", HttpStatus.BAD_REQUEST);
         }
 
         Worker worker = workerRepo.getWorkerById(req.getWorkerId());
-
         if (worker == null) {
             return buildError("Worker not found", HttpStatus.NOT_FOUND);
         }
@@ -58,16 +58,33 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
             return buildError("You already have an active job", HttpStatus.BAD_REQUEST);
         }
 
+        List<WorkAssignment> workerHistory = assignmentRepo.findAssignmentsByWorkerId(req.getWorkerId());
+        Optional<WorkAssignment> existingRecord = workerHistory.stream()
+                .filter(a -> a.getBookingId().equals(req.getBookingId()))
+                .findFirst();
+
+        WorkAssignment assignment;
+
+        if (existingRecord.isPresent()) {
+            assignment = existingRecord.get();
+            assignment.setStatus("ASSIGNED");
+            assignment.setAssignedOn(new Date());
+            assignment.setCreditPoints(100);
+            assignment.setCompletionOtp(null);
+            assignment.setCompletedOn(null);
+        } else {
+            assignment = new WorkAssignment();
+            assignment.setWorkerId(req.getWorkerId());
+            assignment.setBookingId(req.getBookingId());
+            assignment.setStatus("ASSIGNED");
+            assignment.setCreditPoints(100);
+            assignment.setAssignedOn(new Date());
+        }
+
         worker.setCurrentBookingId(req.getBookingId());
         worker.setAvailable(false);
         workerRepo.save(worker);
 
-        WorkAssignment assignment = new WorkAssignment();
-        assignment.setWorkerId(req.getWorkerId());
-        assignment.setBookingId(req.getBookingId());
-        assignment.setStatus("ASSIGNED");
-        assignment.setCreditPoints(100);
-        assignment.setAssignedOn(new Date());
         assignmentRepo.save(assignment);
 
         try {
@@ -128,6 +145,7 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
         WorkAssignment assignment = assignmentOpt.get();
 
         assignment.setStatus("OPEN");
+
         Worker worker = workerRepo.getWorkerById(assignment.getWorkerId());
         worker.setCurrentBookingId(null);
         worker.setAvailable(true);
@@ -158,7 +176,7 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
             }
 
         } catch (Exception e) {
-            System.err.println("Error during revocation process (Feign/Email): " + e.getMessage());
+            System.err.println("Error during revocation process: " + e.getMessage());
         }
 
         assignmentRepo.save(assignment);
@@ -174,11 +192,8 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
     @Override
     public CommonResponse generateOtpForCompletion(String assignmentId) {
         CommonResponse response = new CommonResponse();
-
         Optional<WorkAssignment> assignmentOpt = Optional.ofNullable(assignmentRepo.findById(assignmentId));
-        if (assignmentOpt.isEmpty()) {
-            return buildError("Assignment not found", HttpStatus.NOT_FOUND);
-        }
+        if (assignmentOpt.isEmpty()) return buildError("Assignment not found", HttpStatus.NOT_FOUND);
         WorkAssignment assignment = assignmentOpt.get();
         String otp = String.valueOf((int) (Math.random() * 9000) + 1000);
         assignment.setCompletionOtp(otp);
@@ -207,17 +222,12 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
     @Override
     public CommonResponse updateStatus(String assignmentId, String status, String otpInput) {
         CommonResponse response = new CommonResponse();
-
         Optional<WorkAssignment> assignmentOpt = Optional.ofNullable(assignmentRepo.findById(assignmentId));
-        if (assignmentOpt.isEmpty()) {
-            return buildError("Assignment not found", HttpStatus.NOT_FOUND);
-        }
+        if (assignmentOpt.isEmpty()) return buildError("Assignment not found", HttpStatus.NOT_FOUND);
         WorkAssignment assignment = assignmentOpt.get();
 
         if ("COMPLETED".equalsIgnoreCase(status)) {
-            if (otpInput == null || otpInput.isEmpty()) {
-                return buildError("OTP is required to complete the job.", HttpStatus.BAD_REQUEST);
-            }
+            if (otpInput == null || otpInput.isEmpty()) return buildError("OTP is required to complete the job.", HttpStatus.BAD_REQUEST);
             if (assignment.getCompletionOtp() == null || !assignment.getCompletionOtp().equals(otpInput)) {
                 return buildError("Invalid OTP. Please ask the customer for the correct code.", HttpStatus.UNAUTHORIZED);
             }
@@ -236,9 +246,7 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
 
         if ("COMPLETED".equalsIgnoreCase(status)) {
             assignment.setCompletedOn(new Date());
-
             Worker worker = workerRepo.getWorkerById(assignment.getWorkerId());
-
             if (worker != null) {
                 worker.setTotalCredits(worker.getTotalCredits() + assignment.getCreditPoints());
                 worker.setCurrentBookingId(null);
@@ -248,7 +256,6 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
         }
 
         assignmentRepo.save(assignment);
-
         response.setResponseStatus(ResponseStatus.SUCCESS);
         response.setMessage("Status Updated");
         response.setData(responseData);
@@ -277,14 +284,11 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
     private String fetchCustomerEmail(String bookingId) {
         try {
             ResponseEntity<CommonResponse> bookingRes = bookingClient.getBookingById(bookingId);
-
             if (bookingRes != null && bookingRes.getBody() != null && bookingRes.getBody().getData() != null) {
                 Map<String, Object> bData = (Map<String, Object>) bookingRes.getBody().getData();
                 String userId = (String) bData.get("userId");
-
                 if (userId != null) {
                     ResponseEntity<CommonResponse> userRes = userClient.getUserContactInfo(userId);
-
                     if (userRes != null && userRes.getBody() != null && userRes.getBody().getData() != null) {
                         Map<String, Object> contactData = (Map<String, Object>) userRes.getBody().getData();
                         return (String) contactData.get("email");

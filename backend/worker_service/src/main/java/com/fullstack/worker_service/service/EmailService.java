@@ -123,7 +123,7 @@ public class EmailService {
 
         String htmlContent = "<div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>"
                 + "<h3>Hello " + username + ",</h3>"
-                + "<p>Your service request <b>" + title + "</b> (" + category + ") has been <b>ASSIGNED</b> to a worker.</p>"
+                + "<p>Your service request <b>" + title + "</b> (" + category + ") has been <b>ASSIGNED</b> by a worker.</p>"
                 + "<div style='background-color: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin: 20px 0;'>"
                 + "<h4>Worker Contact Details</h4>"
                 + "<p><b>Name:</b> " + (workerName != null ? workerName : "HomeFix Worker") + "</p>"
