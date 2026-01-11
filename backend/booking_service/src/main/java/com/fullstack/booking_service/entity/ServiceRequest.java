@@ -15,6 +15,8 @@ public class ServiceRequest {
     private String title;
     private String description;
     private String serviceCategory;
+    private String district;
+    private String taluka;
     private String address;
     private String status;
     private String cancellationReason;

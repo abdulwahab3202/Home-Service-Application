@@ -11,6 +11,8 @@ public interface IBookingService {
 
     CommonResponse getAllBookings();
 
+    CommonResponse getBookingsForWorker(String category, String taluka);
+
     CommonResponse getBookingsByCategory(String serviceCategory);
 
     CommonResponse getBookingById(String bookingId);

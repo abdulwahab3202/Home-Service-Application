@@ -12,6 +12,8 @@ public class CreateBookingRequest {
     private String title;
     private String description;
     private String serviceCategory;
+    private String district;
+    private String taluka;
     private String address;
     private MultipartFile image;
 }

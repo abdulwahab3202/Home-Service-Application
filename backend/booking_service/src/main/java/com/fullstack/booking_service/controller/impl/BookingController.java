@@ -28,10 +28,12 @@ public class BookingController implements IBookingController {
                                                         String title,
                                                         String description,
                                                         String serviceCategory,
+                                                        String district,
+                                                        String taluka,
                                                         String address,
                                                         MultipartFile image) {
         try {
-            CreateBookingRequest bookingRequest = new CreateBookingRequest(title, description, serviceCategory, address, image);
+            CreateBookingRequest bookingRequest = new CreateBookingRequest(title, description, serviceCategory, district, taluka, address, image);
             CommonResponse response = bookingService.createBooking(request, bookingRequest);
             return ResponseEntity.status(response.getStatusCode()).body(response);
         } catch (Exception e) {
@@ -41,6 +43,17 @@ public class BookingController implements IBookingController {
 
     @Override
     @PreAuthorize("hasAnyRole('CUSTOMER','WORKER','ADMIN')")
+    public ResponseEntity<CommonResponse> getBookingsForWorker(String category, String taluka) {
+        try {
+            CommonResponse response = bookingService.getBookingsForWorker(category, taluka);
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception e) {
+            return exceptionHandler(e, "Get Bookings For Worker");
+        }
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('WORKER','ADMIN')")
     public ResponseEntity<CommonResponse> getAllBookings() {
         try {
             CommonResponse response = bookingService.getAllBookings();

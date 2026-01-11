@@ -18,6 +18,8 @@ public class Worker {
     private String email;
     private String phoneNumber;
     private String department;
+    private String district;
+    private String taluka;
     private boolean isAvailable;
     private int totalCredits;
     private Date createdOn;

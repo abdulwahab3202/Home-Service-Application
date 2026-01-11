@@ -20,4 +20,10 @@ public interface BookingClient {
 
     @GetMapping("/booking/get/{id}")
     ResponseEntity<CommonResponse> getBookingById(@PathVariable("id") String id);
+
+    @GetMapping("/api/bms/bookings/filter")
+    ResponseEntity<CommonResponse> getBookingsForWorker(
+            @RequestParam("category") String category,
+            @RequestParam("taluka") String taluka
+    );
 }

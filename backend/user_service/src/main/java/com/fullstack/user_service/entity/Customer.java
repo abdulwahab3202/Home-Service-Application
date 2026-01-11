@@ -17,6 +17,8 @@ public class Customer {
     private String address;
     private String city;
     private int pinCode;
+    private String district;
+    private String taluka;
     private Date createdOn;
     private Date updatedOn;
 }

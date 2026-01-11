@@ -25,6 +25,17 @@ public class BookingRepository {
         return mongoTemplate.find(query, ServiceRequest.class);
     }
 
+    public List<ServiceRequest> findAvailableJobs(String category, String taluka) {
+        Query query = new Query(
+                new Criteria().andOperator(
+                        Criteria.where("serviceCategory").is(category),
+                        Criteria.where("taluka").is(taluka),
+                        Criteria.where("status").is("OPEN")
+                )
+        );
+        return mongoTemplate.find(query, ServiceRequest.class);
+    }
+
     public List<ServiceRequest> findByCategory(String serviceCategory){
         Query query = new Query(Criteria.where("serviceCategory").is(serviceCategory));
         return mongoTemplate.find(query, ServiceRequest.class);

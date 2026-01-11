@@ -13,6 +13,8 @@ public class UserRequest {
     private String address;
     private String city;
     private int pinCode;
+    private String district;
+    private String taluka;
     private String department;
     private String provider;
     private String otp;

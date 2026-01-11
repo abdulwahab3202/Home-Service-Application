@@ -57,6 +57,8 @@ public class BookingServiceImpl implements IBookingService {
         newRequest.setTitle(bookingRequest.getTitle());
         newRequest.setDescription(bookingRequest.getDescription());
         newRequest.setServiceCategory(bookingRequest.getServiceCategory());
+        newRequest.setDistrict(bookingRequest.getDistrict());
+        newRequest.setTaluka(bookingRequest.getTaluka());
         newRequest.setAddress(bookingRequest.getAddress());
         newRequest.setImageUrl(imageUrl);
         newRequest.setStatus("OPEN");
@@ -81,6 +83,18 @@ public class BookingServiceImpl implements IBookingService {
     public CommonResponse getAllBookings() {
         CommonResponse response = new CommonResponse();
         List<ServiceRequest> list = bookingRepository.getAllBookings();
+        response.setResponseStatus(ResponseStatus.SUCCESS);
+        response.setMessage("Retrieved Successfully");
+        response.setData(list.stream().map(this::toDTO).toList());
+        response.setStatus(HttpStatus.OK);
+        response.setStatusCode(HttpStatus.OK.value());
+        return response;
+    }
+
+    @Override
+    public CommonResponse getBookingsForWorker(String category, String taluka) {
+        CommonResponse response = new CommonResponse();
+        List<ServiceRequest> list = bookingRepository.findAvailableJobs(category, taluka);
         response.setResponseStatus(ResponseStatus.SUCCESS);
         response.setMessage("Retrieved Successfully");
         response.setData(list.stream().map(this::toDTO).toList());

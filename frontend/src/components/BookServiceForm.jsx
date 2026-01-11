@@ -1,7 +1,7 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { StoreContext } from '../context/StoreContext';
 import { 
-  X, Upload, Loader2, MapPin, Wrench, Zap, Droplets, Hammer 
+  X, Upload, Loader2, MapPin, Wrench, Zap, Droplets, Hammer, Map 
 } from 'lucide-react';
 
 const BookServiceForm = ({ onCancel, onSuccess }) => {
@@ -9,15 +9,32 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
   const fileInputRef = useRef(null);
   
   const [loading, setLoading] = useState(false);
+  
+  // FIX 1: Default to 'Plumber' (not 'Plumbing') to match Worker Profile
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    serviceCategory: 'Plumbing',
+    serviceCategory: 'Plumber', 
     address: user?.address || '',
+    district: user?.district || '',
+    taluka: user?.taluka || '',
     date: new Date().toISOString().split('T')[0]
   });
+  
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+
+  // FIX 2: Sync form data when 'user' context updates (handles page refresh)
+  useEffect(() => {
+    if (user) {
+        setFormData(prev => ({
+            ...prev,
+            address: prev.address || user.address || '',
+            district: prev.district || user.district || '',
+            taluka: prev.taluka || user.taluka || ''
+        }));
+    }
+  }, [user]);
 
   const categories = [
     { id: 'Plumber', icon: <Droplets size={20} />, label: 'Plumber' },
@@ -48,6 +65,8 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
     submissionData.append('description', formData.description);
     submissionData.append('serviceCategory', formData.serviceCategory);
     submissionData.append('address', formData.address);
+    submissionData.append('district', formData.district);
+    submissionData.append('taluka', formData.taluka);
     submissionData.append('date', formData.date);
     if (imageFile) {
       submissionData.append('image', imageFile);
@@ -124,15 +143,45 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
               onChange={(e) => setFormData({...formData, description: e.target.value})}
             />
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+             <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">District</label>
+                <div className="relative">
+                    <Map className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500/50" size={16} />
+                    <input 
+                        type="text" 
+                        value={formData.district} 
+                        readOnly 
+                        placeholder="N/A"
+                        className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border border-transparent cursor-not-allowed text-sm font-medium"
+                    />
+                </div>
+             </div>
+             <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Taluka</label>
+                <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500/50" size={16} />
+                    <input 
+                        type="text" 
+                        value={formData.taluka} 
+                        readOnly 
+                        placeholder="N/A"
+                        className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border border-transparent cursor-not-allowed text-sm font-medium"
+                    />
+                </div>
+             </div>
+          </div>
+
           <div className="space-y-2">
              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-               <MapPin size={16} className="text-indigo-500" /> Location
+               <MapPin size={16} className="text-indigo-500" /> Specific Location
              </label>
              <div className="relative">
                 <textarea 
                   required
                   rows="2"
-                  placeholder="Enter Door No, Street, Area, and Pincode..."
+                  placeholder="Enter Door No, Street, Area..."
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   value={formData.address}
                   onChange={(e) => setFormData({...formData, address: e.target.value})}

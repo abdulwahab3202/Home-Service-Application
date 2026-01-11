@@ -4,7 +4,7 @@ import { StoreContext } from '../context/StoreContext';
 import { toast } from 'react-toastify';
 import { 
   User, Mail, Phone, MapPin, Hash, Building, Lock, ArrowRight, 
-  CheckCircle2, ShieldAlert, Briefcase, Wrench 
+  CheckCircle2, ShieldAlert, Briefcase, Wrench, Map 
 } from 'lucide-react';
 
 const CompleteProfile = () => {
@@ -21,10 +21,39 @@ const CompleteProfile = () => {
     address: '',
     city: '',
     pincode: '',
-    department: 'Plumbing', 
+    district: '',
+    taluka: '',
+    department: 'Plumber', // FIX: Default to 'Plumber' (not 'Plumbing')
     role: 'CUSTOMER',    
     password: '' 
   });
+
+  const tamilNaduDistricts = [
+    "Tiruvallur", "Chennai", "Kancheepuram", "Vellore", "Dharmapuri", "Tiruvannamalai",
+    "Villuppuram", "Salem", "Namakkal", "Erode", "Nilgiris", "Coimbatore", "Dindigul",
+    "Karur", "Thiruchirappalli", "Perambalur", "Ariyalur", "Cuddalore", "Nagapattinam",
+    "Thiruvarur", "Thanjavur", "Pudukkottai", "Sivagangai", "Madurai", "Theni",
+    "Virudhunagar", "Ramanathapuram", "Thoothukkudi", "Tirunelveli", "Kanyakumari",
+    "Krishnagiri", "Tiruppur", "Kallakurichi", "Tenkasi", "Chengalpattu", "Thirupathur",
+    "Ranipet", "Mayiladuthurai"
+  ];
+
+  const tamilNaduDistrictTalukas = {
+    Chennai: ["Alandur", "Ambattur", "Aminjikarai", "Ayanavaram", "Egmore", "Guindy", "Kolathur", "Madhavaram", "Maduravoyal", "Mambalam", "Mylapore", "Perambur", "Purasawalkam", "Shozhinganallur", "Thiruvottiyur", "Tondiarpet", "Velachery"],
+    Tiruvallur: ["Avadi", "Gummidipoondi", "Pallipet", "Ponneri", "Poonamallee", "R.K. Pet", "Tiruttani", "Tiruvallur", "Uthukottai"],
+    Coimbatore: ["Anaimalai", "Annur", "Coimbatore North", "Coimbatore South", "Kinathukadavu", "Madukkarai", "Mettupalayam", "Perur", "Pollachi", "Sulur", "Valparai"],
+    Madurai: ["Kalligudi", "Madurai East", "Madurai North", "Madurai South", "Madurai West", "Melur", "Peraiyur", "Thiruparankundram", "Tirumangalam", "Usilampatti", "Vadipatti"],
+    Salem: ["Attur", "Edappady", "Gangavalli", "Kadayampatti", "Mettur", "Omalur", "Pethanaickenpalayam", "Salem", "Salem South", "Salem West", "Sankari", "Thalaivasal", "Valapady", "Yercaud"],
+    Erode: ["Anthiyur", "Bhavani", "Erode", "Gobichettipalayam", "Kodumudi", "Modakkurichi", "Nambiyur", "Perundurai", "Sathyamangalam", "Thalavadi"],
+    Tiruppur: ["Avinashi", "Dharapuram", "Kangayam", "Madathukulam", "Palladam", "Tiruppur North", "Tiruppur South", "Udumalaipet", "Uthukuli"],
+    Thiruchirappalli: ["Lalgudi", "Manachanallur", "Manapparai", "Marungapuri", "Musiri", "Srirangam", "Thiruverumbur", "Thottiam", "Thuraiyur", "Tiruchirappalli East", "Tiruchirappalli West"],
+    Virudhunagar: ["Aruppukkottai", "Kariyapatti", "Rajapalayam", "Sattur", "Sivakasi", "Srivilliputhur", "Tiruchuli", "Vembakkottai", "Virudhunagar", "Watrap"],
+    Thoothukkudi: ["Eral", "Ettayapuram", "Kayathar", "Kovilpatti", "Ottapidaram", "Sattankulam", "Srivaikundam", "Thoothukkudi", "Tiruchendur", "Vilathikulam"],
+    Tenkasi: ["Alangulam", "Kadayanallur", "Sankarankoil", "Shenkottai", "Sivagiri", "Tenkasi", "Thiruvengadam", "Veerakeralampudur"],
+    Mayiladuthurai: ["Kuthalam", "Mayiladuthurai", "Sirkazhi", "Tharangambadi"]
+  };
+
+  const getTalukas = (district) => tamilNaduDistrictTalukas[district] || [];
 
   const isAdmin = formData.email === ADMIN_EMAIL;
 
@@ -44,6 +73,8 @@ const CompleteProfile = () => {
 
     if (!isAdmin) {
         if (!formData.phone) return toast.error("Phone number is required");
+        if (!formData.district) return toast.error("District is required");
+        if (!formData.taluka && getTalukas(formData.district).length > 0) return toast.error("Taluka is required");
         
         if (formData.role === 'CUSTOMER') {
             if (!formData.address || !formData.city || !formData.pincode) {
@@ -63,6 +94,8 @@ const CompleteProfile = () => {
         address: (formData.role === 'CUSTOMER' && !isAdmin) ? formData.address : (isAdmin ? "HQ" : null),
         city: (formData.role === 'CUSTOMER' && !isAdmin) ? formData.city : (isAdmin ? "Admin City" : null),
         pinCode: (formData.role === 'CUSTOMER' && !isAdmin) ? formData.pincode : (isAdmin ? "000000" : 0),
+        district: !isAdmin ? formData.district : null,
+        taluka: !isAdmin ? formData.taluka : null
     };
 
     try {
@@ -71,10 +104,7 @@ const CompleteProfile = () => {
         navigate('/'); 
       }
     } catch (error) {
-      if (isAdmin && error.response?.data?.message?.toLowerCase().includes("already in use")) {
-          toast.info("Admin account exists. Redirecting...");
-          setTimeout(() => navigate('/login'), 2000);
-      }
+      // Error handled in context
     }
   };
 
@@ -115,26 +145,10 @@ const CompleteProfile = () => {
 
                 {!isAdmin && (
                     <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl flex gap-1">
-                        <button
-                            type="button"
-                            onClick={() => setFormData({...formData, role: 'CUSTOMER'})}
-                            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
-                                formData.role === 'CUSTOMER' 
-                                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' 
-                                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                            }`}
-                        >
+                        <button type="button" onClick={() => setFormData({...formData, role: 'CUSTOMER'})} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${formData.role === 'CUSTOMER' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>
                             <User size={16} /> Customer
                         </button>
-                        <button
-                            type="button"
-                            onClick={() => setFormData({...formData, role: 'WORKER'})}
-                            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
-                                formData.role === 'WORKER' 
-                                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' 
-                                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                            }`}
-                        >
+                        <button type="button" onClick={() => setFormData({...formData, role: 'WORKER'})} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${formData.role === 'WORKER' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>
                             <Briefcase size={16} /> Worker
                         </button>
                     </div>
@@ -142,12 +156,35 @@ const CompleteProfile = () => {
 
                 {!isAdmin && (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-                        
                         <div>
                             <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Phone Number <span className="text-red-500">*</span></label>
                             <div className="relative">
                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
                                 <input type="text" name="phone" placeholder="98765 43210" onChange={handleChange} className={inputBaseClass} required />
+                            </div>
+                        </div>
+
+                        {/* District & Taluka */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">District <span className="text-red-500">*</span></label>
+                                <div className="relative">
+                                    <Map className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
+                                    <select name="district" value={formData.district} onChange={(e) => setFormData({...formData, district: e.target.value, taluka: ''})} className={`${inputBaseClass} bg-white dark:bg-slate-800 appearance-none`} required>
+                                        <option value="" disabled>Select</option>
+                                        {tamilNaduDistricts.map(d => <option key={d} value={d}>{d}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Taluka <span className="text-red-500">*</span></label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
+                                    <select name="taluka" value={formData.taluka} onChange={handleChange} className={`${inputBaseClass} bg-white dark:bg-slate-800 appearance-none`} required disabled={!formData.district}>
+                                        <option value="" disabled>Select</option>
+                                        {getTalukas(formData.district).map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -158,7 +195,7 @@ const CompleteProfile = () => {
                                     <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
                                     <select name="department" value={formData.department} onChange={handleChange} className={`${inputBaseClass} bg-white dark:bg-slate-800 appearance-none`}>
                                         <option value="Plumber">Plumber</option>
-                                        <option value="EleElectricianctrical">Electrician</option>
+                                        <option value="Electrician">Electrician</option>
                                         <option value="Cleaner">Cleaner</option>
                                         <option value="Carpenter">Carpenter</option>
                                     </select>
@@ -174,7 +211,6 @@ const CompleteProfile = () => {
                                         <textarea name="address" placeholder="House No, Street Area..." onChange={handleChange} rows="2" className={`${inputBaseClass} pl-10 resize-none`} required />
                                     </div>
                                 </div>
-
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">City <span className="text-red-500">*</span></label>
@@ -196,18 +232,7 @@ const CompleteProfile = () => {
                     </div>
                 )}
 
-                {isAdmin && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 p-4 rounded-xl text-sm flex items-start gap-3 border border-blue-100 dark:border-blue-800">
-                        <ShieldAlert size={20} className="shrink-0 mt-0.5" />
-                        <div><span className="font-bold block">Admin Detected</span> Click below to enter the dashboard.</div>
-                    </div>
-                )}
-
-                <button type="submit" className={`w-full text-white py-3.5 rounded-xl font-bold text-base shadow-lg flex items-center justify-center gap-2 mt-6 transition-transform hover:-translate-y-0.5 active:translate-y-0 ${
-                    isAdmin 
-                    ? 'bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600' 
-                    : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 shadow-indigo-200 dark:shadow-indigo-900/30'
-                }`}>
+                <button type="submit" className={`w-full text-white py-3.5 rounded-xl font-bold text-base shadow-lg flex items-center justify-center gap-2 mt-6 transition-transform hover:-translate-y-0.5 active:translate-y-0 ${isAdmin ? 'bg-slate-800 dark:bg-slate-700' : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600'}`}>
                     {isAdmin ? "Enter Dashboard" : "Complete Profile"} <ArrowRight size={20} />
                 </button>
             </form>

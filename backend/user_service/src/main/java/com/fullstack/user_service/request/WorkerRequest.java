@@ -9,4 +9,6 @@ public class WorkerRequest {
     private String email;
     private String phoneNumber;
     private String department;
+    private String district;
+    private String taluka;
 }

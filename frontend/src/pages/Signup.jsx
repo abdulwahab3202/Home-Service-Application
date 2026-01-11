@@ -1,10 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { StoreContext } from '../context/StoreContext';
 import {
     User, Mail, Lock, MapPin, Phone, Briefcase, Eye, EyeOff, Droplets, Zap, Wrench,
-    Hammer, CheckCircle2, Loader2, ArrowRight, Building, Hash, Moon, Sun
+    Hammer, CheckCircle2, Loader2, ArrowRight, Building, Hash, Moon, Sun, Map
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -25,6 +25,7 @@ const Signup = ({ theme, toggleTheme }) => {
         role: 'CUSTOMER',
         otp: '',
         phoneNumber: '', address: '', city: '', pinCode: '',
+        district: '', taluka: '',
         department: 'Plumber'
     });
 
@@ -36,6 +37,35 @@ const Signup = ({ theme, toggleTheme }) => {
         Carpenter: <Hammer size={16} />
     };
 
+    const tamilNaduDistricts = [
+        "Tiruvallur", "Chennai", "Kancheepuram", "Vellore", "Dharmapuri", "Tiruvannamalai",
+        "Villuppuram", "Salem", "Namakkal", "Erode", "Nilgiris", "Coimbatore", "Dindigul",
+        "Karur", "Thiruchirappalli", "Perambalur", "Ariyalur", "Cuddalore", "Nagapattinam",
+        "Thiruvarur", "Thanjavur", "Pudukkottai", "Sivagangai", "Madurai", "Theni",
+        "Virudhunagar", "Ramanathapuram", "Thoothukkudi", "Tirunelveli", "Kanyakumari",
+        "Krishnagiri", "Tiruppur", "Kallakurichi", "Tenkasi", "Chengalpattu", "Thirupathur",
+        "Ranipet", "Mayiladuthurai"
+    ];
+
+    const tamilNaduDistrictTalukas = {
+        Chennai: ["Alandur", "Ambattur", "Aminjikarai", "Ayanavaram", "Egmore", "Guindy", "Kolathur", "Madhavaram", "Maduravoyal", "Mambalam", "Mylapore", "Perambur", "Purasawalkam", "Shozhinganallur", "Thiruvottiyur", "Tondiarpet", "Velachery"],
+        Tiruvallur: ["Avadi", "Gummidipoondi", "Pallipet", "Ponneri", "Poonamallee", "R.K. Pet", "Tiruttani", "Tiruvallur", "Uthukottai"],
+        Coimbatore: ["Anaimalai", "Annur", "Coimbatore North", "Coimbatore South", "Kinathukadavu", "Madukkarai", "Mettupalayam", "Perur", "Pollachi", "Sulur", "Valparai"],
+        Madurai: ["Kalligudi", "Madurai East", "Madurai North", "Madurai South", "Madurai West", "Melur", "Peraiyur", "Thiruparankundram", "Tirumangalam", "Usilampatti", "Vadipatti"],
+        Salem: ["Attur", "Edappady", "Gangavalli", "Kadayampatti", "Mettur", "Omalur", "Pethanaickenpalayam", "Salem", "Salem South", "Salem West", "Sankari", "Thalaivasal", "Valapady", "Yercaud"],
+        Erode: ["Anthiyur", "Bhavani", "Erode", "Gobichettipalayam", "Kodumudi", "Modakkurichi", "Nambiyur", "Perundurai", "Sathyamangalam", "Thalavadi"],
+        Tiruppur: ["Avinashi", "Dharapuram", "Kangayam", "Madathukulam", "Palladam", "Tiruppur North", "Tiruppur South", "Udumalaipet", "Uthukuli"],
+        Thiruchirappalli: ["Lalgudi", "Manachanallur", "Manapparai", "Marungapuri", "Musiri", "Srirangam", "Thiruverumbur", "Thottiam", "Thuraiyur", "Tiruchirappalli East", "Tiruchirappalli West"],
+        Virudhunagar: ["Aruppukkottai", "Kariyapatti", "Rajapalayam", "Sattur", "Sivakasi", "Srivilliputhur", "Tiruchuli", "Vembakkottai", "Virudhunagar", "Watrap"],
+        Thoothukkudi: ["Eral", "Ettayapuram", "Kayathar", "Kovilpatti", "Ottapidaram", "Sattankulam", "Srivaikundam", "Thoothukkudi", "Tiruchendur", "Vilathikulam"],
+        Tenkasi: ["Alangulam", "Kadayanallur", "Sankarankoil", "Shenkottai", "Sivagiri", "Tenkasi", "Thiruvengadam", "Veerakeralampudur"],
+        Mayiladuthurai: ["Kuthalam", "Mayiladuthurai", "Sirkazhi", "Tharangambadi"]
+    };
+
+    // Helper to get talukas safely
+    const getTalukas = (district) => {
+        return tamilNaduDistrictTalukas[district] || [];
+    };
 
     const handleSendOtp = async () => {
         if (!formData.email || !formData.email.includes('@')) {
@@ -73,6 +103,12 @@ const Signup = ({ theme, toggleTheme }) => {
     const handleRegister = async (e) => {
         e.preventDefault();
         if (emailStatus !== 'VERIFIED') return toast.warn("Email Required: Please verify your email first.");
+        
+        // Basic validation for district/taluka
+        if(formData.role === 'WORKER' || formData.role === 'CUSTOMER') {
+             if(!formData.district) return toast.warn("Please select a District");
+             if(getTalukas(formData.district).length > 0 && !formData.taluka) return toast.warn("Please select a Taluka");
+        }
 
         setIsLoading(true);
         try {
@@ -81,6 +117,7 @@ const Signup = ({ theme, toggleTheme }) => {
                 navigate(formData.role === 'WORKER' ? '/worker-dashboard' : '/book-service');
             }
         } catch (error) {
+            // Error handled in context
         } finally {
             setIsLoading(false);
         }
@@ -116,6 +153,7 @@ const Signup = ({ theme, toggleTheme }) => {
 
                 <form onSubmit={handleRegister} className="p-8 space-y-8">
 
+                    {/* SECTION 1: IDENTITY */}
                     <div className="space-y-4">
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">1. Identity & Login</h3>
 
@@ -126,7 +164,6 @@ const Signup = ({ theme, toggleTheme }) => {
                             </div>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-3.5 text-slate-400" size={18} />
-
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     placeholder="Password"
@@ -135,7 +172,6 @@ const Signup = ({ theme, toggleTheme }) => {
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                     className={`${inputBaseClass} pr-12`}
                                 />
-
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
@@ -144,7 +180,6 @@ const Signup = ({ theme, toggleTheme }) => {
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
-
                         </div>
 
                         <div className="relative">
@@ -158,7 +193,6 @@ const Signup = ({ theme, toggleTheme }) => {
                                 onChange={e => setFormData({ ...formData, email: e.target.value })}
                                 className={`${inputBaseClass} ${emailStatus === 'VERIFIED' ? 'border-green-500 dark:border-green-500 pr-32' : 'pr-32'}`}
                             />
-
                             <div className="absolute right-2 top-2">
                                 {emailStatus === 'VERIFIED' ? (
                                     <span className="flex items-center gap-1 text-green-600 bg-green-50 dark:bg-green-900/30 px-3 py-1.5 rounded-lg text-xs font-bold border border-green-200 dark:border-green-800">
@@ -188,6 +222,7 @@ const Signup = ({ theme, toggleTheme }) => {
                         </div>
                     </div>
 
+                    {/* SECTION 2: ROLE & DETAILS */}
                     {emailStatus === 'VERIFIED' && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
@@ -216,11 +251,40 @@ const Signup = ({ theme, toggleTheme }) => {
                                         <input type="text" placeholder="Phone Number" required value={formData.phoneNumber} onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })} className={inputBaseClass} />
                                     </div>
 
+                                    {/* --- DISTRICT & TALUKA SELECTION (FOR BOTH ROLES) --- */}
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="relative">
+                                            <Map className="absolute left-3 top-3.5 text-slate-400" size={18} />
+                                            <select 
+                                                className={`${inputBaseClass} appearance-none bg-white dark:bg-slate-800`}
+                                                value={formData.district}
+                                                onChange={(e) => setFormData({...formData, district: e.target.value, taluka: ''})}
+                                                required
+                                            >
+                                                <option value="" disabled>Select District</option>
+                                                {tamilNaduDistricts.map(d => <option key={d} value={d}>{d}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-3 top-3.5 text-slate-400" size={18} />
+                                            <select 
+                                                className={`${inputBaseClass} appearance-none bg-white dark:bg-slate-800 ${!formData.district ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                value={formData.taluka}
+                                                onChange={(e) => setFormData({...formData, taluka: e.target.value})}
+                                                required
+                                                disabled={!formData.district}
+                                            >
+                                                <option value="" disabled>Select Taluka</option>
+                                                {getTalukas(formData.district).map(t => <option key={t} value={t}>{t}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     {formData.role === 'CUSTOMER' ? (
                                         <div className="grid md:grid-cols-2 gap-4">
                                             <div className="relative md:col-span-2">
                                                 <MapPin className="absolute left-3 top-3.5 text-slate-400" size={18} />
-                                                <input type="text" placeholder="Full Address" required value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} className={inputBaseClass} />
+                                                <input type="text" placeholder="Address (Door No, Street)" required value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} className={inputBaseClass} />
                                             </div>
                                             <div className="relative">
                                                 <Building className="absolute left-3 top-3.5 text-slate-400" size={18} />
@@ -228,18 +292,8 @@ const Signup = ({ theme, toggleTheme }) => {
                                             </div>
                                             <div className="relative">
                                                 <Hash className="absolute left-3 top-3.5 text-slate-400" size={18} />
-                                                <input
-                                                    type="text"
-                                                    inputMode="numeric"
-                                                    pattern="[0-9]*"
-                                                    placeholder="Pincode"
-                                                    required
-                                                    value={formData.pinCode}
-                                                    onChange={e => setFormData({ ...formData, pinCode: e.target.value })}
-                                                    className={inputBaseClass}
-                                                />
-
-                                            </div> 
+                                                <input type="number" placeholder="Pincode" required value={formData.pinCode} onChange={e => setFormData({ ...formData, pinCode: e.target.value })} className={inputBaseClass} />
+                                            </div>
                                         </div>
                                     ) : (
                                         <div>
@@ -249,16 +303,12 @@ const Signup = ({ theme, toggleTheme }) => {
                                                     <div
                                                         key={dept}
                                                         onClick={() => setFormData({ ...formData, department: dept })}
-                                                        className={`px-3 py-3 text-sm font-medium text-center rounded-xl border cursor-pointer transition-all flex items-center justify-center gap-2 ${formData.department === dept
-                                                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
-                                                                : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400'
-                                                            }`}
+                                                        className={`px-3 py-3 text-sm font-medium text-center rounded-xl border cursor-pointer transition-all flex items-center justify-center gap-2 ${formData.department === dept ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400'}`}
                                                     >
                                                         {departmentIcons[dept]} {dept}
                                                     </div>
                                                 ))}
                                             </div>
-
                                         </div>
                                     )}
                                 </div>

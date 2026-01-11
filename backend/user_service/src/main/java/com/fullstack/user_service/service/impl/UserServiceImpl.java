@@ -353,6 +353,8 @@ public class UserServiceImpl implements IUserService {
         customer.setAddress(request.getAddress());
         customer.setCity(request.getCity());
         customer.setPinCode(request.getPinCode());
+        customer.setDistrict(request.getDistrict());
+        customer.setTaluka(request.getTaluka());
         customerRepository.save(customer);
     }
 
@@ -363,6 +365,8 @@ public class UserServiceImpl implements IUserService {
         workerRequest.setEmail(user.getEmail());
         workerRequest.setPhoneNumber(request.getPhoneNumber());
         workerRequest.setDepartment(request.getDepartment());
+        workerRequest.setDistrict(request.getDistrict());
+        workerRequest.setTaluka(request.getTaluka());
 
         CommonResponse workerResponse = workerClient.createWorkerProfile(workerRequest);
 
