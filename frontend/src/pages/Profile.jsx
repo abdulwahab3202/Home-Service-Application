@@ -3,7 +3,7 @@ import { StoreContext } from '../context/StoreContext';
 import { 
   User, Mail, Phone, MapPin, Edit2, Save, 
   Award, CheckCircle, Clock, Briefcase, 
-  Building, Navigation, Loader2
+  Building, Navigation, Loader2, Map 
 } from 'lucide-react';
 
 const formatDate = (dateInput) => {
@@ -26,7 +26,8 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('details'); 
   
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', address: '', city: '', pincode: '', department: ''
+    name: '', email: '', phone: '', address: '', city: '', pincode: '', department: '',
+    district: '', taluka: '' // Added fields
   });
 
   useEffect(() => { fetchUserProfile(); }, []);
@@ -40,7 +41,9 @@ const Profile = () => {
         address: user.address || '',
         city: user.city || '',
         pincode: user.pinCode || user.pincode || '', 
-        department: user.department || ''
+        department: user.department || '',
+        district: user.district || '', // Map District
+        taluka: user.taluka || ''      // Map Taluka
       });
     }
   }, [user]);
@@ -81,6 +84,12 @@ const Profile = () => {
                 </span>
                 {role === 'WORKER' && user?.department && (
                   <span className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">• {user.department}</span>
+                )}
+                {/* Display Location in Header */}
+                {(user?.district || user?.taluka) && (
+                    <span className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                        • <MapPin size={12}/> {user.taluka ? `${user.taluka}, ` : ''}{user.district}
+                    </span>
                 )}
               </div>
             </div>
@@ -143,6 +152,24 @@ const Profile = () => {
                   {isEditing ? <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" /> 
                   : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><Phone size={18} className="text-slate-400 dark:text-slate-500"/> {user?.phoneNumber || user?.phone || "Not provided"}</div>}
                 </div>
+              )}
+
+              {/* NEW: District & Taluka (Read-only mostly, unless you add dropdown logic for edit) */}
+              {role !== 'ADMIN' && (
+                  <>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">District</label>
+                        <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700">
+                            <Map size={18} className="text-slate-400 dark:text-slate-500"/> {user?.district || "Not Provided"}
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Taluka</label>
+                        <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700">
+                            <MapPin size={18} className="text-slate-400 dark:text-slate-500"/> {user?.taluka || "Not Provided"}
+                        </div>
+                    </div>
+                  </>
               )}
 
               {role === 'WORKER' && (
