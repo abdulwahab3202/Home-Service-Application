@@ -62,9 +62,12 @@ const BookingCard = ({ booking, onEdit, onDelete }) => {
 
   const showActions = user?.role === 'CUSTOMER' && booking.status === 'OPEN';
 
+  // Helper to check if image exists
+  const hasImage = booking.imageUrl && booking.imageUrl.trim() !== "";
+
   return (
     <>
-      <div className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col h-full relative">
+      <div className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm dark:shadow-md dark:shadow-slate-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col h-full relative">
         
         {showActions && (
           <div className="absolute top-3 right-3 z-20 flex gap-2">
@@ -93,12 +96,13 @@ const BookingCard = ({ booking, onEdit, onDelete }) => {
         )}
 
         <div 
-          className={`relative h-48 w-full overflow-hidden bg-gradient-to-br ${booking.imageBase64 ? 'cursor-pointer' : theme.gradient}`}
-          onClick={() => booking.imageBase64 && setIsModalOpen(true)}
+          className={`relative h-48 w-full overflow-hidden bg-gradient-to-br ${hasImage ? 'cursor-pointer' : theme.gradient}`}
+          onClick={() => hasImage && setIsModalOpen(true)}
         >
-          {booking.imageBase64 ? (
+          {hasImage ? (
             <>
-              <img src={booking.imageBase64} alt={booking.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              {/* UPDATED: Using imageUrl instead of imageBase64 */}
+              <img src={booking.imageUrl} alt={booking.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <div className="bg-white/90 backdrop-blur-sm p-2 rounded-full text-slate-800 shadow-lg transform scale-75 group-hover:scale-100 transition-transform"><Maximize2 size={20} /></div>
               </div>
@@ -142,11 +146,12 @@ const BookingCard = ({ booking, onEdit, onDelete }) => {
         
       </div>
 
-      {isModalOpen && booking.imageBase64 && (
+      {isModalOpen && hasImage && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsModalOpen(false)}>
           <button onClick={() => setIsModalOpen(false)} className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all"><X size={32} /></button>
           <div className="relative max-w-5xl max-h-[90vh] p-2" onClick={(e) => e.stopPropagation()}>
-            <img src={booking.imageBase64} alt="Full view" className="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain" />
+            {/* UPDATED: Using imageUrl here as well */}
+            <img src={booking.imageUrl} alt="Full view" className="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain" />
           </div>
         </div>
       )}

@@ -40,7 +40,6 @@ public class EmailService {
 
     public void sendRegistrationOtp(String toEmail, String otp) {
         SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
-
         SendSmtpEmailSender sender = new SendSmtpEmailSender();
         sender.setEmail(senderEmail);
         sender.setName("HomeFix Security");
@@ -74,21 +73,17 @@ public class EmailService {
 
     public void sendOtpEmail(String toEmail, String otp) {
         SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
-
-        // 1. Set Sender
         SendSmtpEmailSender sender = new SendSmtpEmailSender();
         sender.setEmail(senderEmail);
         sender.setName("HomeFix Service Team");
         sendSmtpEmail.setSender(sender);
 
-        // 2. Set Recipient
         List<SendSmtpEmailTo> toList = new ArrayList<>();
         SendSmtpEmailTo to = new SendSmtpEmailTo();
         to.setEmail(toEmail);
         toList.add(to);
         sendSmtpEmail.setTo(toList);
 
-        // 3. Set Content
         sendSmtpEmail.setSubject("Service Completion Verification Code");
         String htmlContent = "<h3>Service Verification</h3>"
                 + "<p>Hello,</p>"
@@ -101,7 +96,6 @@ public class EmailService {
 
         sendSmtpEmail.setHtmlContent(htmlContent);
 
-        // 4. Send
         try {
             getApiInstance().sendTransacEmail(sendSmtpEmail);
             logger.info("OTP Email sent successfully to {}", toEmail);
@@ -111,9 +105,8 @@ public class EmailService {
         }
     }
 
-    public void sendResolutionEmail(String toEmail, String username, String title, String category, String workerPhone, String workerEmail) {
+    public void sendAssignmentEmail(String toEmail, String username, String title, String category, String workerName, String workerPhone, String workerEmail) {
         SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
-
         SendSmtpEmailSender sender = new SendSmtpEmailSender();
         sender.setEmail(senderEmail);
         sender.setName("HomeFix Service Team");
@@ -126,22 +119,63 @@ public class EmailService {
         toList.add(to);
         sendSmtpEmail.setTo(toList);
 
-        sendSmtpEmail.setSubject("Service Completed: " + title);
+        sendSmtpEmail.setSubject("Service Assigned: " + title);
 
-        String htmlContent = "<h3>Hello " + username + ",</h3>"
-                + "<p>Your service request <b>" + title + "</b> (" + category + ") has been marked as <b>COMPLETED</b> by the worker.</p>"
-                + "<p>If you experience any issues, please contact the worker using the details below.</p>"
-                + "<p>Contact number : <b>" + (workerPhone != null ? workerPhone : "N/A") + "</b></p>"
-                + "<p>E-mail : <b>" + (workerEmail != null ? workerEmail : "N/A") + "</b></p>"
-                + "<br/><p>Thank you,<br/>HomeFix Service Team</p>";
+        String htmlContent = "<div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>"
+                + "<h3>Hello " + username + ",</h3>"
+                + "<p>Your service request <b>" + title + "</b> (" + category + ") has been <b>ASSIGNED</b> to a worker.</p>"
+                + "<div style='background-color: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin: 20px 0;'>"
+                + "<h4>Worker Contact Details</h4>"
+                + "<p><b>Name:</b> " + (workerName != null ? workerName : "HomeFix Worker") + "</p>"
+                + "<p><b>Phone:</b> " + (workerPhone != null ? workerPhone : "N/A") + "</p>"
+                + "<p><b>Email:</b> " + (workerEmail != null ? workerEmail : "N/A") + "</p>"
+                + "</div>"
+                + "<p>The worker will arrive shortly. If they do not contact you, please reach out using the details above.</p>"
+                + "<br/><p>Thank you,<br/>HomeFix Service Team</p>"
+                + "</div>";
 
         sendSmtpEmail.setHtmlContent(htmlContent);
 
         try {
             getApiInstance().sendTransacEmail(sendSmtpEmail);
-            logger.info("Resolution Email sent to {}", toEmail);
+            logger.info("Assignment Email sent to {}", toEmail);
         } catch (ApiException e) {
-            logger.error("Failed to send resolution email", e);
+            logger.error("Failed to send assignment email", e);
+        }
+    }
+
+    public void sendRevocationEmail(String toEmail, String username, String title, String category) {
+        SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
+        SendSmtpEmailSender sender = new SendSmtpEmailSender();
+        sender.setEmail(senderEmail);
+        sender.setName("HomeFix Service Team");
+        sendSmtpEmail.setSender(sender);
+
+        List<SendSmtpEmailTo> toList = new ArrayList<>();
+        SendSmtpEmailTo to = new SendSmtpEmailTo();
+        to.setEmail(toEmail);
+        to.setName(username);
+        toList.add(to);
+        sendSmtpEmail.setTo(toList);
+
+        sendSmtpEmail.setSubject("Update on Service Request: " + title);
+
+        String htmlContent = "<div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>"
+                + "<h3>Hello " + username + ",</h3>"
+                + "<p>We wanted to inform you that the worker previously assigned to your request <b>" + title + "</b> (" + category + ") is no longer available to complete the task.</p>"
+                + "<p>Don't worry! Your request has been automatically placed back into the <b>OPEN</b> pool.</p>"
+                + "<p>It is now visible to other qualified professionals on our platform who can accept and fulfill your request shortly.</p>"
+                + "<p>We apologize for any inconvenience this delay may cause and appreciate your patience.</p>"
+                + "<br/><p>Best Regards,<br/>HomeFix Service Team</p>"
+                + "</div>";
+
+        sendSmtpEmail.setHtmlContent(htmlContent);
+
+        try {
+            getApiInstance().sendTransacEmail(sendSmtpEmail);
+            logger.info("Revocation Email sent to {}", toEmail);
+        } catch (ApiException e) {
+            logger.error("Failed to send revocation email", e);
         }
     }
 }

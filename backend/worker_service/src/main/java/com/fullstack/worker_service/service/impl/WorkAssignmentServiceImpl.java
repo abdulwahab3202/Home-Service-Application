@@ -72,8 +72,42 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
 
         try {
             bookingClient.updateBookingStatus(req.getBookingId(), "ASSIGNED");
+
+            ResponseEntity<CommonResponse> bookingRes = bookingClient.getBookingById(req.getBookingId());
+            if (bookingRes != null && bookingRes.getBody() != null && bookingRes.getBody().getData() != null) {
+                Map<String, Object> bData = (Map<String, Object>) bookingRes.getBody().getData();
+                String userId = (String) bData.get("userId");
+                String title = (String) bData.get("title");
+                String category = (String) bData.get("serviceCategory");
+
+                if (userId != null) {
+                    ResponseEntity<CommonResponse> userRes = userClient.getUserContactInfo(userId);
+                    if (userRes != null && userRes.getBody() != null && userRes.getBody().getData() != null) {
+                        Map<String, Object> contactData = (Map<String, Object>) userRes.getBody().getData();
+                        String customerEmail = (String) contactData.get("email");
+                        String customerName = (String) contactData.get("name");
+
+                        String workerName = worker.getName();
+                        String workerPhone = worker.getPhoneNumber();
+                        String workerEmail = worker.getEmail();
+
+                        if (customerEmail != null) {
+                            emailService.sendAssignmentEmail(
+                                    customerEmail,
+                                    customerName,
+                                    title,
+                                    category,
+                                    workerName,
+                                    workerPhone,
+                                    workerEmail
+                            );
+                        }
+                    }
+                }
+            }
         } catch (Exception e) {
-            System.err.println("Failed to update Booking Service: " + e.getMessage());
+            System.err.println("Failed during Assignment Email Process: " + e.getMessage());
+            e.printStackTrace();
         }
 
         response.setResponseStatus(ResponseStatus.SUCCESS);
@@ -92,17 +126,43 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
             return buildError("Assignment not found", HttpStatus.NOT_FOUND);
         }
         WorkAssignment assignment = assignmentOpt.get();
+
         assignment.setStatus("OPEN");
         Worker worker = workerRepo.getWorkerById(assignment.getWorkerId());
         worker.setCurrentBookingId(null);
         worker.setAvailable(true);
         workerRepo.save(worker);
+
         try {
             bookingClient.updateBookingStatus(assignment.getBookingId(), "OPEN");
+
+            ResponseEntity<CommonResponse> bookingRes = bookingClient.getBookingById(assignment.getBookingId());
+            if (bookingRes != null && bookingRes.getBody() != null && bookingRes.getBody().getData() != null) {
+                Map<String, Object> bData = (Map<String, Object>) bookingRes.getBody().getData();
+                String userId = (String) bData.get("userId");
+                String title = (String) bData.get("title");
+                String category = (String) bData.get("serviceCategory");
+
+                if (userId != null) {
+                    ResponseEntity<CommonResponse> userRes = userClient.getUserContactInfo(userId);
+                    if (userRes != null && userRes.getBody() != null && userRes.getBody().getData() != null) {
+                        Map<String, Object> contactData = (Map<String, Object>) userRes.getBody().getData();
+                        String customerEmail = (String) contactData.get("email");
+                        String customerName = (String) contactData.get("name");
+
+                        if (customerEmail != null) {
+                            emailService.sendRevocationEmail(customerEmail, customerName, title, category);
+                        }
+                    }
+                }
+            }
+
         } catch (Exception e) {
-            System.err.println("Error updating booking status via Feign: " + e.getMessage());
+            System.err.println("Error during revocation process (Feign/Email): " + e.getMessage());
         }
+
         assignmentRepo.save(assignment);
+
         response.setResponseStatus(ResponseStatus.SUCCESS);
         response.setStatus(HttpStatus.OK);
         response.setMessage("Assignment revoked successfully");
@@ -178,61 +238,12 @@ public class WorkAssignmentServiceImpl implements IWorkAssignmentService {
             assignment.setCompletedOn(new Date());
 
             Worker worker = workerRepo.getWorkerById(assignment.getWorkerId());
-            String workerPhone = "N/A";
-            String workerEmail = "N/A";
 
             if (worker != null) {
                 worker.setTotalCredits(worker.getTotalCredits() + assignment.getCreditPoints());
                 worker.setCurrentBookingId(null);
                 worker.setAvailable(true);
                 workerRepo.save(worker);
-
-                if(worker.getPhoneNumber() != null) {
-                    workerPhone = worker.getPhoneNumber();
-                }
-                if(worker.getEmail() != null) {
-                    workerEmail = worker.getEmail();
-                }
-            }
-
-            try {
-                ResponseEntity<CommonResponse> bookingRes = bookingClient.getBookingById(assignment.getBookingId());
-
-                if (bookingRes != null && bookingRes.getBody() != null && bookingRes.getBody().getData() != null) {
-                    Map<String, Object> bData = (Map<String, Object>) bookingRes.getBody().getData();
-
-                    String userId = (String) bData.get("userId");
-                    String title = (String) bData.get("title");
-                    String category = (String) bData.get("serviceCategory");
-
-                    if (userId != null) {
-                        ResponseEntity<CommonResponse> userRes = userClient.getUserContactInfo(userId);
-
-                        if (userRes != null && userRes.getBody() != null && userRes.getBody().getData() != null) {
-                            Map<String, Object> contactData = (Map<String, Object>) userRes.getBody().getData();
-
-                            String email = (String) contactData.get("email");
-                            String username = (String) contactData.get("name");
-
-                            if (email != null) {
-                                emailService.sendResolutionEmail(email, username, title, category, workerPhone, workerEmail);
-                                responseData.put("emailStatus", "Sent to " + email);
-                            } else {
-                                responseData.put("emailStatus", "Email field missing in User Data");
-                            }
-                        } else {
-                            responseData.put("emailStatus", "User Data is Null/Empty");
-                        }
-                    } else {
-                        responseData.put("emailStatus", "No UserId in Booking");
-                    }
-                } else {
-                    responseData.put("emailStatus", "Booking Data is Null");
-                }
-            } catch (Exception e) {
-                System.out.println("Email Logic Failed: " + e.getMessage());
-                e.printStackTrace();
-                responseData.put("emailStatus", "Failed: " + e.getMessage());
             }
         }
 

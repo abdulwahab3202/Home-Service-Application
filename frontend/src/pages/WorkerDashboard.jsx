@@ -15,17 +15,19 @@ const formatDate = (dateInput) => {
 };
 
 const WorkerJobCard = ({ job, activeJob, onAccept, onInitiateComplete, onRevoke, onImageClick, isActionable }) => {
-  const hasImage = !!job.imageBase64;
+  // UPDATED: Check for imageUrl instead of imageBase64
+  const hasImage = job.imageUrl && job.imageUrl.trim() !== "";
 
   return (
     <div className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col h-full">
       <div 
         className={`relative h-48 w-full overflow-hidden ${hasImage ? 'cursor-pointer bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-800'}`}
-        onClick={() => hasImage && onImageClick(job.imageBase64)}
+        onClick={() => hasImage && onImageClick(job.imageUrl)} // Pass URL
       >
         {hasImage ? (
           <>
-            <img src={job.imageBase64} alt={job.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            {/* UPDATED: Use imageUrl */}
+            <img src={job.imageUrl} alt={job.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
               <div className="bg-white/90 backdrop-blur-sm p-2 rounded-full text-slate-800 shadow-lg transform scale-75 group-hover:scale-100 transition-transform">
                 <Maximize2 size={20} />
@@ -70,36 +72,36 @@ const WorkerJobCard = ({ job, activeJob, onAccept, onInitiateComplete, onRevoke,
                 <span className="line-clamp-2">{job.address || "No address provided"}</span>
             </div>
         </div>
+      </div>
 
-        <div className="mt-5">
-          {isActionable ? (
-            <button 
-              onClick={() => onAccept(job.id)} 
-              disabled={!!activeJob}
-              className={`w-full py-2.5 rounded-lg font-bold text-sm transition-colors shadow-sm ${
-                  activeJob ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white shadow-indigo-200 dark:shadow-indigo-900/20'
-              }`}
-            >
-              {activeJob ? 'Complete Active Job First' : 'Accept Request'}
-            </button>
-          ) : (
-              <div className="flex gap-2">
-                <button 
-                onClick={onInitiateComplete}
-                className="flex-1 py-2.5 rounded-lg font-bold text-sm bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 text-white shadow-green-200 dark:shadow-green-900/20 shadow-sm flex items-center justify-center gap-2 transition-colors"
-                >
-                <CheckCircle size={16} /> Complete
-                </button>
-                <button 
-                  onClick={onRevoke}
-                  className="px-3 py-2.5 rounded-lg font-bold text-sm bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 shadow-sm flex items-center justify-center transition-colors"
-                  title="Release Job"
-                >
-                   <Ban size={18} />
-                </button>
-             </div>
-          )}
-        </div>
+      <div className="mt-5">
+        {isActionable ? (
+          <button 
+            onClick={() => onAccept(job.id)} 
+            disabled={!!activeJob}
+            className={`w-full py-2.5 rounded-lg font-bold text-sm transition-colors shadow-sm ${
+                activeJob ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white shadow-indigo-200 dark:shadow-indigo-900/20'
+            }`}
+          >
+            {activeJob ? 'Complete Active Job First' : 'Accept Request'}
+          </button>
+        ) : (
+            <div className="flex gap-2">
+              <button 
+              onClick={onInitiateComplete}
+              className="flex-1 py-2.5 rounded-lg font-bold text-sm bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500 text-white shadow-green-200 dark:shadow-green-900/20 shadow-sm flex items-center justify-center gap-2 transition-colors"
+              >
+              <CheckCircle size={16} /> Complete
+              </button>
+              <button 
+                onClick={onRevoke}
+                className="px-3 py-2.5 rounded-lg font-bold text-sm bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 shadow-sm flex items-center justify-center transition-colors"
+                title="Release Job"
+              >
+                 <Ban size={18} />
+              </button>
+           </div>
+        )}
       </div>
     </div>
   );
@@ -271,6 +273,7 @@ const WorkerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 transition-colors duration-500">
+      {/* OTP MODAL */}
       {showOtpModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-in zoom-in-95 border border-slate-100 dark:border-slate-800">
@@ -297,6 +300,7 @@ const WorkerDashboard = () => {
         </div>
       )}
 
+      {/* Selected Image Modal */}
       {selectedImage && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4" onClick={() => setSelectedImage(null)}>
           <button className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 p-2 rounded-full"><X size={24} /></button>
