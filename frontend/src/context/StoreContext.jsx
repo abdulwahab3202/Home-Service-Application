@@ -445,14 +445,14 @@ const StoreContextProvider = (props) => {
   const deleteBooking = async (id) => {
     setIsLoading(true);
     try {
-      await axios.delete(`${BOOKING_URL}/booking/delete/${id}`, {
+      await axios.delete(`${BOOKING_URL}/delete/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       await fetchAdminDashboardData();
-      toast.success("Record deleted.");
+      toast.success("Booking Request deleted.");
       return true;
     } catch (error) {
-      toast.error("Failed to delete record.");
+      toast.error("Failed to delete booking request.");
       throw error;
     } finally { setIsLoading(false); }
   };

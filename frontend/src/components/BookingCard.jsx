@@ -2,10 +2,10 @@ import React, { useState, useContext } from 'react';
 import { StoreContext } from '../context/StoreContext'; 
 import { 
   Calendar, MapPin, Wrench, Zap, Droplets, Hammer, 
-  Maximize2, X, Pencil 
+  Maximize2, X, Pencil, Trash2
 } from 'lucide-react';
 
-const BookingCard = ({ booking, onEdit }) => {
+const BookingCard = ({ booking, onEdit, onDelete }) => {
   const { user } = useContext(StoreContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -60,23 +60,36 @@ const BookingCard = ({ booking, onEdit }) => {
     return new Date(dateString).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  const showEditButton = user?.role === 'CUSTOMER' && booking.status === 'OPEN';
+  const showActions = user?.role === 'CUSTOMER' && booking.status === 'OPEN';
 
   return (
     <>
       <div className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col h-full relative">
         
-        {showEditButton && (
-          <button
-            onClick={(e) => {
-               e.stopPropagation();
-               if (onEdit) onEdit(booking);
-            }}
-            className="absolute top-3 right-3 z-20 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 p-2 rounded-full shadow-md border border-slate-100 dark:border-slate-700 hover:scale-110 transition-all duration-200"
-            title="Edit Request"
-          >
-            <Pencil size={16} />
-          </button>
+        {showActions && (
+          <div className="absolute top-3 right-3 z-20 flex gap-2">
+             <button
+                onClick={(e) => {
+                   e.stopPropagation();
+                   if (onEdit) onEdit(booking);
+                }}
+                className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 p-2 rounded-full shadow-md border border-slate-100 dark:border-slate-700 hover:scale-110 transition-all duration-200"
+                title="Edit Request"
+             >
+                <Pencil size={16} />
+             </button>
+             
+             <button
+                onClick={(e) => {
+                   e.stopPropagation();
+                   if (onDelete) onDelete(booking.id);
+                }}
+                className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 p-2 rounded-full shadow-md border border-slate-100 dark:border-slate-700 hover:scale-110 transition-all duration-200"
+                title="Delete Request"
+             >
+                <Trash2 size={16} />
+             </button>
+          </div>
         )}
 
         <div 

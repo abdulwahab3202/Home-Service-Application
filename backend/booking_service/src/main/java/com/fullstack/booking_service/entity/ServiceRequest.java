@@ -11,7 +11,7 @@ public class ServiceRequest {
     @Id
     private String id;
     private String userId;
-    private String imageBase64;
+    private String imageUrl;
     private String title;
     private String description;
     private String serviceCategory;

@@ -1,5 +1,7 @@
 package com.fullstack.booking_service.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.fullstack.booking_service.entity.ServiceRequest;
 import com.fullstack.booking_service.model.CommonResponse;
 import com.fullstack.booking_service.model.ResponseStatus;
@@ -14,17 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class BookingServiceImpl implements IBookingService {
 
     @Autowired
     private BookingRepository bookingRepository;
+
+    @Autowired
+    private Cloudinary cloudinary;
 
     @Override
     public CommonResponse createBooking(HttpServletRequest request, CreateBookingRequest bookingRequest) {
@@ -37,13 +41,12 @@ public class BookingServiceImpl implements IBookingService {
             return buildErrorResponse("Category is required", HttpStatus.BAD_REQUEST);
         }
 
-        String imageBase64 = null;
+        String imageUrl = null;
         if (bookingRequest.getImage() != null && !bookingRequest.getImage().isEmpty()) {
             try {
-                String extension = StringUtils.getFilenameExtension(bookingRequest.getImage().getOriginalFilename());
-                imageBase64 = "data:image/" + extension + ";base64," + Base64.getEncoder().encodeToString(bookingRequest.getImage().getBytes());
-            } catch (Exception e) {
-                System.out.println("Image upload failed: " + e.getMessage());
+                imageUrl = uploadImageToCloudinary(bookingRequest.getImage());
+            } catch (IOException e) {
+                return buildErrorResponse("Image upload failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
 
@@ -55,7 +58,7 @@ public class BookingServiceImpl implements IBookingService {
         newRequest.setDescription(bookingRequest.getDescription());
         newRequest.setServiceCategory(bookingRequest.getServiceCategory());
         newRequest.setAddress(bookingRequest.getAddress());
-        newRequest.setImageBase64(imageBase64);
+        newRequest.setImageUrl(imageUrl);
         newRequest.setStatus("OPEN");
         newRequest.setCreatedOn(new Date());
 
@@ -67,6 +70,11 @@ public class BookingServiceImpl implements IBookingService {
         response.setStatus(HttpStatus.CREATED);
         response.setStatusCode(HttpStatus.CREATED.value());
         return response;
+    }
+
+    private String uploadImageToCloudinary(MultipartFile file) throws IOException {
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        return uploadResult.get("secure_url").toString();
     }
 
     @Override
@@ -191,7 +199,7 @@ public class BookingServiceImpl implements IBookingService {
         BookingResponse res = new BookingResponse();
         res.setId(req.getId());
         res.setUserId(req.getUserId());
-        res.setImageBase64(req.getImageBase64());
+        res.setImageUrl(req.getImageUrl());
         res.setTitle(req.getTitle());
         res.setDescription(req.getDescription());
         res.setServiceCategory(req.getServiceCategory());

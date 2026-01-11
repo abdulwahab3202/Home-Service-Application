@@ -6,9 +6,10 @@ import {
   Plus, Loader2, LayoutDashboard, Clock, CheckCircle, 
   X, Save 
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const CustomerDashboard = () => {
-  const { bookings, fetchCustomerBookings, user, updateBooking } = useContext(StoreContext);
+  const { bookings, fetchCustomerBookings, user, updateBooking, deleteBooking } = useContext(StoreContext);
   
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,6 +55,29 @@ const CustomerDashboard = () => {
       address: booking.address || ''
     });
     setIsEditModalOpen(true);
+  };
+
+  const onDeleteHandler = async (bookingId) => {
+    const result = await Swal.fire({
+      title: 'Delete Booking?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b', 
+      confirmButtonText: 'Yes, delete it',
+      scrollbarPadding: false,
+      background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff',
+      color: document.documentElement.classList.contains('dark') ? '#fff' : '#1e293b'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteBooking(bookingId);
+        await fetchCustomerBookings();
+      } catch (error) {
+      }
+    }
   };
 
   const handleEditChange = (e) => {
@@ -106,7 +130,7 @@ const CustomerDashboard = () => {
             }`}
           >
             <Clock size={16} />
-            Active Projects
+            Active Requests
             {activeBookings.length > 0 && (
               <span className="ml-1 bg-indigo-200 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200 text-[10px] px-2 py-0.5 rounded-full">
                 {activeBookings.length}
@@ -139,6 +163,7 @@ const CustomerDashboard = () => {
                 key={booking.id || booking._id} 
                 booking={booking}
                 onEdit={onEditHandler}
+                onDelete={onDeleteHandler} // Pass the delete handler
               />
             ))}
           </div>
