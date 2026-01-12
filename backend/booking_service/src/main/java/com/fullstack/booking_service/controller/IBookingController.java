@@ -20,7 +20,7 @@ public interface IBookingController {
     @GetMapping("/get-all")
     ResponseEntity<CommonResponse> getAllBookings();
 
-    @GetMapping("/bookings/filter")
+    @GetMapping("/filter")
     ResponseEntity<CommonResponse> getBookingsForWorker(@RequestParam String category, @RequestParam String taluka);
 
     @GetMapping("/get-by-category")
