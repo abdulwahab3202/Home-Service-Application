@@ -6,13 +6,12 @@ import sendinblue.Configuration;
 import sendinblue.auth.ApiKeyAuth;
 import sibModel.*;
 import sibApi.TransactionalEmailsApi;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -176,6 +175,44 @@ public class EmailService {
             logger.info("Revocation Email sent to {}", toEmail);
         } catch (ApiException e) {
             logger.error("Failed to send revocation email", e);
+        }
+    }
+
+    public void sendNewJobAlert(String toEmail, String workerName, String jobTitle, String category, String taluka, String district) {
+        SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
+        SendSmtpEmailSender sender = new SendSmtpEmailSender();
+        sender.setEmail(senderEmail);
+        sender.setName("HomeFix Alerts");
+        sendSmtpEmail.setSender(sender);
+
+        SendSmtpEmailTo to = new SendSmtpEmailTo();
+        to.setEmail(toEmail);
+        to.setName(workerName);
+        sendSmtpEmail.setTo(Collections.singletonList(to));
+
+        sendSmtpEmail.setSubject("New Job Available: " + category + " in " + taluka);
+
+        String htmlContent = "<div style='font-family: Arial, sans-serif; padding: 20px; color: #333; border: 1px solid #e5e7eb; border-radius: 8px;'>"
+                + "<h3>Hello " + workerName + ",</h3>"
+                + "<p>A new service request matching your profile has just been posted!</p>"
+                + "<div style='background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin: 15px 0;'>"
+                + "<p><b>Category:</b> " + category + "</p>"
+                + "<p><b>Location:</b> " + taluka + ", " + district + "</p>"
+                + "<p><b>Issue:</b> " + jobTitle + "</p>"
+                + "</div>"
+                + "<p>Login to your dashboard now to view details and accept this job.</p>"
+                + "<br/>"
+                + "<a href='http://localhost:5173/worker-dashboard' style='background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>View Dashboard</a>"
+                + "<br/><br/><p>Best Regards,<br/>HomeFix Team</p>"
+                + "</div>";
+
+        sendSmtpEmail.setHtmlContent(htmlContent);
+
+        try {
+            getApiInstance().sendTransacEmail(sendSmtpEmail);
+            logger.info("Job Alert Email sent to {}", toEmail);
+        } catch (ApiException e) {
+            logger.error("Failed to send Job Alert to {}: {}", toEmail, e.getMessage());
         }
     }
 }

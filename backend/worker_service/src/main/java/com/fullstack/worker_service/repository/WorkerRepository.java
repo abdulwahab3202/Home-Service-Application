@@ -33,6 +33,16 @@ public class WorkerRepository {
         }
     }
 
+    public List<Worker> findByDepartmentAndDistrictAndTaluka(String department, String district, String taluka) {
+        Query query = new Query(
+                Criteria.where("department").is(department)
+                        .and("district").is(district)
+                        .and("taluka").is(taluka)
+        );
+        return mongoTemplate.find(query, Worker.class);
+    }
+
+
     public Worker findByEmail(String email) {
         Query query = new Query(Criteria.where("email").is(email));
         return mongoTemplate.findOne(query, Worker.class);

@@ -2,11 +2,13 @@ package com.fullstack.booking_service.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.fullstack.booking_service.client.WorkerClient;
 import com.fullstack.booking_service.entity.ServiceRequest;
 import com.fullstack.booking_service.model.CommonResponse;
 import com.fullstack.booking_service.model.ResponseStatus;
 import com.fullstack.booking_service.repository.BookingRepository;
 import com.fullstack.booking_service.request.CreateBookingRequest;
+import com.fullstack.booking_service.request.JobNotificationRequest;
 import com.fullstack.booking_service.request.UpdateBookingRequest;
 import com.fullstack.booking_service.response.BookingResponse;
 import com.fullstack.booking_service.service.IBookingService;
@@ -15,7 +17,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -29,6 +30,9 @@ public class BookingServiceImpl implements IBookingService {
 
     @Autowired
     private Cloudinary cloudinary;
+
+    @Autowired
+    private WorkerClient workerClient;
 
     @Override
     public CommonResponse createBooking(HttpServletRequest request, CreateBookingRequest bookingRequest) {
@@ -65,6 +69,19 @@ public class BookingServiceImpl implements IBookingService {
         newRequest.setCreatedOn(new Date());
 
         bookingRepository.save(newRequest);
+
+        try {
+            JobNotificationRequest notificationReq = new JobNotificationRequest(
+                    newRequest.getTitle(),
+                    newRequest.getServiceCategory(),
+                    newRequest.getDistrict(),
+                    newRequest.getTaluka()
+            );
+            workerClient.notifyWorkers(notificationReq);
+
+        } catch (Exception e) {
+            System.err.println("Failed to trigger worker email notifications: " + e.getMessage());
+        }
 
         response.setResponseStatus(ResponseStatus.SUCCESS);
         response.setMessage("Booking Created Successfully");

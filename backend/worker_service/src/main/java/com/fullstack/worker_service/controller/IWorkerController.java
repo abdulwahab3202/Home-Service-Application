@@ -1,6 +1,7 @@
 package com.fullstack.worker_service.controller;
 
 import com.fullstack.worker_service.model.CommonResponse;
+import com.fullstack.worker_service.request.JobNotificationRequest;
 import com.fullstack.worker_service.request.WorkerRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,9 @@ public interface IWorkerController {
 
     @DeleteMapping("/delete/{workerId}")
     ResponseEntity<CommonResponse> deleteWorker(@PathVariable String workerId);
+
+    @PostMapping("/notify-new-job")
+    ResponseEntity<CommonResponse> notifyWorkers(@RequestBody JobNotificationRequest req);
 
     @GetMapping("/available")
     ResponseEntity<CommonResponse> findAvailableWorkers();
