@@ -10,7 +10,6 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
   
   const [loading, setLoading] = useState(false);
   
-  // FIX 1: Default to 'Plumber' (not 'Plumbing') to match Worker Profile
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,7 +23,6 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // FIX 2: Sync form data when 'user' context updates (handles page refresh)
   useEffect(() => {
     if (user) {
         setFormData(prev => ({

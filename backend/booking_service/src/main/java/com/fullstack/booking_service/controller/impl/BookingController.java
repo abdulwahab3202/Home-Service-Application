@@ -35,7 +35,7 @@ public class BookingController implements IBookingController {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('CUSTOMER','WORKER','ADMIN')")
+    @PreAuthorize("hasAnyRole('WORKER','ADMIN')")
     public ResponseEntity<CommonResponse> getBookingsForWorker(String category, String taluka) {
         try {
             CommonResponse response = bookingService.getBookingsForWorker(category, taluka);
