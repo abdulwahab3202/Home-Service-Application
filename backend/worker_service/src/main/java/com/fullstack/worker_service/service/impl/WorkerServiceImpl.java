@@ -6,6 +6,7 @@ import com.fullstack.worker_service.entity.Worker;
 import com.fullstack.worker_service.model.CommonResponse;
 import com.fullstack.worker_service.model.ResponseStatus;
 import com.fullstack.worker_service.repository.WorkerRepository;
+import com.fullstack.worker_service.request.JobNotificationRequest;
 import com.fullstack.worker_service.request.WorkerRequest;
 import com.fullstack.worker_service.service.EmailService;
 import com.fullstack.worker_service.service.IWorkerService;
@@ -201,6 +202,46 @@ public class WorkerServiceImpl implements IWorkerService {
         response.setData(workers);
         response.setStatus(HttpStatus.OK);
         response.setStatusCode(HttpStatus.OK.value());
+        return response;
+    }
+
+    @Override
+    public CommonResponse notifyWorkersOfNewJob(JobNotificationRequest req) {
+        CommonResponse response = new CommonResponse();
+
+        List<Worker> matchingWorkers = workerRepository.findByDepartmentAndDistrictAndTaluka(
+                req.getCategory(),
+                req.getDistrict(),
+                req.getTaluka()
+        );
+
+        if (matchingWorkers.isEmpty()) {
+            response.setResponseStatus(ResponseStatus.SUCCESS);
+            response.setMessage("No matching workers found in this area.");
+            response.setStatus(HttpStatus.OK);
+            response.setStatusCode(200);
+            return response;
+        }
+
+        int sentCount = 0;
+        for (Worker worker : matchingWorkers) {
+            if (worker.getEmail() != null && !worker.getEmail().isEmpty()) {
+                emailService.sendNewJobAlert(
+                        worker.getEmail(),
+                        worker.getName(),
+                        req.getTitle(),
+                        req.getCategory(),
+                        req.getTaluka(),
+                        req.getDistrict()
+                );
+                sentCount++;
+            }
+        }
+
+        response.setResponseStatus(ResponseStatus.SUCCESS);
+        response.setMessage("Notification sent to " + sentCount + " workers.");
+        response.setStatus(HttpStatus.OK);
+        response.setStatusCode(200);
         return response;
     }
 

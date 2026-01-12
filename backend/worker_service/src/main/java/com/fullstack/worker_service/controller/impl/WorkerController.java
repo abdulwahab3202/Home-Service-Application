@@ -3,6 +3,7 @@ package com.fullstack.worker_service.controller.impl;
 import com.fullstack.worker_service.controller.IWorkerController;
 import com.fullstack.worker_service.model.CommonResponse;
 import com.fullstack.worker_service.model.ResponseStatus;
+import com.fullstack.worker_service.request.JobNotificationRequest;
 import com.fullstack.worker_service.request.WorkerRequest;
 import com.fullstack.worker_service.service.IWorkerService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -103,6 +104,12 @@ public class WorkerController implements IWorkerController {
         } catch (Exception e) {
             return exceptionHandler(e, "Find Available Workers");
         }
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> notifyWorkers(JobNotificationRequest req) {
+        CommonResponse response = workerService.notifyWorkersOfNewJob(req);
+        return new ResponseEntity<>(response, response.getStatus());
     }
 
     @Override

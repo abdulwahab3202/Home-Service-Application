@@ -88,6 +88,7 @@ const StoreContextProvider = (props) => {
             });
             if (res.data.responseStatus === "SUCCESS") {
                 const fullProfile = { ...user, ...res.data.data };
+                console.log(fullProfile);
                 if(fullProfile.phoneNumber && !fullProfile.phone) fullProfile.phone = fullProfile.phoneNumber;
                 setUser(fullProfile);
                 localStorage.setItem('user', JSON.stringify(fullProfile));

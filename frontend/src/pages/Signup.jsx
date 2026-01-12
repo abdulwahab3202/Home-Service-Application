@@ -4,7 +4,7 @@ import axios from 'axios';
 import { StoreContext } from '../context/StoreContext';
 import {
     User, Mail, Lock, Phone, Briefcase, Eye, EyeOff, Droplets, Zap, Wrench,
-    Hammer, CheckCircle2, Loader2, ArrowRight, Map, MapPin, Hash
+    Hammer, CheckCircle2, Loader2, ArrowRight, Map, MapPin, Hash, Sun
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import SearchableSelect from '../components/SearchableSelect';

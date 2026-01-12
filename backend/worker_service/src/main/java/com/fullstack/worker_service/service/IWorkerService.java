@@ -1,6 +1,7 @@
 package com.fullstack.worker_service.service;
 
 import com.fullstack.worker_service.model.CommonResponse;
+import com.fullstack.worker_service.request.JobNotificationRequest;
 import com.fullstack.worker_service.request.WorkerRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -21,6 +22,8 @@ public interface IWorkerService {
     CommonResponse deleteWorker(String workerId);
 
     CommonResponse findAvailableWorkers();
+
+    CommonResponse notifyWorkersOfNewJob(JobNotificationRequest request);
 
     CommonResponse getAvailableBookings(HttpServletRequest request);
 }
