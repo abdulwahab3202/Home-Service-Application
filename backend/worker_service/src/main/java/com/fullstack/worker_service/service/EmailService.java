@@ -202,7 +202,7 @@ public class EmailService {
                 + "</div>"
                 + "<p>Login to your dashboard now to view details and accept this job.</p>"
                 + "<br/>"
-                + "<a href='http://localhost:5173/worker-dashboard' style='background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>View Dashboard</a>"
+                + "<a href='https://home-service-application-five.vercel.app/worker-dashboard' style='background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>View Dashboard</a>"
                 + "<br/><br/><p>Best Regards,<br/>HomeFix Team</p>"
                 + "</div>";
 
