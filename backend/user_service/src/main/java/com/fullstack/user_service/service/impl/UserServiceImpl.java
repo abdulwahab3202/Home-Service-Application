@@ -11,6 +11,7 @@ import com.fullstack.user_service.model.UserRole;
 import com.fullstack.user_service.repository.CustomerRepository;
 import com.fullstack.user_service.repository.EmailVerificationRepository;
 import com.fullstack.user_service.repository.UserRepository;
+import com.fullstack.user_service.request.ChangePasswordRequest;
 import com.fullstack.user_service.request.UserRequest;
 import com.fullstack.user_service.request.WorkerRequest;
 import com.fullstack.user_service.response.CustomerResponse;
@@ -325,6 +326,42 @@ public class UserServiceImpl implements IUserService {
         }
 
         response.setMessage("User Retrieved");
+        response.setResponseStatus(ResponseStatus.SUCCESS);
+        response.setStatus(HttpStatus.OK);
+        response.setStatusCode(200);
+        return response;
+    }
+
+    @Override
+    public CommonResponse changePassword(HttpServletRequest request, ChangePasswordRequest changePasswordRequest) {
+        Claims userClaims = (Claims) request.getAttribute("userClaims");
+        if (userClaims == null) return buildError("Unauthorized", HttpStatus.UNAUTHORIZED);
+
+        String userId = userClaims.get("userId", String.class);
+        User user = userRepository.getUserById(userId);
+
+        if (user == null) {
+            return buildError("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        if (!"LOCAL".equalsIgnoreCase(user.getProvider())) {
+            return buildError("Users logged in via " + user.getProvider() + " cannot change password.", HttpStatus.FORBIDDEN);
+        }
+
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
+            return buildError("Incorrect old password.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (changePasswordRequest.getNewPassword().length() < 8) {
+            return buildError("New password must be at least 8 characters long.", HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        user.setUpdatedOn(new Date());
+        userRepository.save(user);
+
+        CommonResponse response = new CommonResponse();
+        response.setMessage("Password Changed Successfully");
         response.setResponseStatus(ResponseStatus.SUCCESS);
         response.setStatus(HttpStatus.OK);
         response.setStatusCode(200);

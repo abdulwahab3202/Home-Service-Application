@@ -1,6 +1,7 @@
 package com.fullstack.user_service.service;
 
 import com.fullstack.user_service.model.CommonResponse;
+import com.fullstack.user_service.request.ChangePasswordRequest;
 import com.fullstack.user_service.request.UserRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,8 @@ public interface IUserService {
     CommonResponse getUserById(String userId);
 
     CommonResponse getUserContactInfo(String userId);
+
+    CommonResponse changePassword(HttpServletRequest request, ChangePasswordRequest changePasswordRequest);
 
     CommonResponse updateUser(HttpServletRequest request, UserRequest userRequest);
 

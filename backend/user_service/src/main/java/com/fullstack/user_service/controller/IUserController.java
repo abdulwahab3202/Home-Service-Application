@@ -1,6 +1,7 @@
 package com.fullstack.user_service.controller;
 
 import com.fullstack.user_service.model.CommonResponse;
+import com.fullstack.user_service.request.ChangePasswordRequest;
 import com.fullstack.user_service.request.UserRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,9 @@ public interface IUserController {
 
     @GetMapping("/contact-info/{userId}")
     ResponseEntity<CommonResponse> getUserContactInfo(@PathVariable String userId);
+
+    @PutMapping("/change-password")
+    ResponseEntity<CommonResponse> changePassword(HttpServletRequest request, @RequestBody ChangePasswordRequest changePasswordRequest);
 
     @PutMapping("/update")
     ResponseEntity<CommonResponse> updateUser(HttpServletRequest request, @RequestBody UserRequest userRequest);

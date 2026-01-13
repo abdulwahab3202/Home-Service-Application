@@ -2,8 +2,8 @@ import React, { useContext, useState, useEffect } from 'react';
 import { StoreContext } from '../context/StoreContext';
 import { 
   User, Mail, Phone, MapPin, Edit2, Save, 
-  Award, CheckCircle, Clock, Briefcase, 
-  Building, Navigation, Loader2, Map 
+  CheckCircle, Clock, Briefcase, 
+  Map, Loader2, Lock, X, KeyRound, ShieldCheck
 } from 'lucide-react';
 
 const formatDate = (dateInput) => {
@@ -20,14 +20,16 @@ const formatDate = (dateInput) => {
 };
 
 const Profile = () => {
-  const { user, updateProfile, bookings, workerHistory, fetchUserProfile, isLoading } = useContext(StoreContext);
+  const { user, updateProfile, bookings, workerHistory, fetchUserProfile, isLoading, changePassword } = useContext(StoreContext);
   
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('details'); 
-  
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passData, setPassData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
+  const [passLoading, setPassLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', address: '',  pincode: '', department: '',
-    district: '', taluka: '' // Added fields
+    district: '', taluka: ''
   });
 
   useEffect(() => { fetchUserProfile(); }, []);
@@ -41,8 +43,8 @@ const Profile = () => {
         address: user.address || '',
         pincode: user.pinCode || user.pincode || '', 
         department: user.department || '',
-        district: user.district || '', // Map District
-        taluka: user.taluka || ''      // Map Taluka
+        district: user.district || '',
+        taluka: user.taluka || ''
       });
     }
   }, [user]);
@@ -57,12 +59,37 @@ const Profile = () => {
     } catch (error) { console.error("Profile update failed", error); }
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (passData.newPassword.length < 8) {
+        alert("New password must be at least 8 characters long.");
+        return;
+    }
+    if (passData.newPassword !== passData.confirmPassword) {
+        alert("New passwords do not match.");
+        return;
+    }
+
+    setPassLoading(true);
+    const success = await changePassword({
+        oldPassword: passData.oldPassword,
+        newPassword: passData.newPassword
+    });
+    setPassLoading(false);
+
+    if (success) {
+        setIsPasswordModalOpen(false);
+        setPassData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    }
+  };
+
   const role = user?.role || 'CUSTOMER';
   const completedJobsCount = workerHistory ? workerHistory.filter(j => j.status === 'COMPLETED').length : 0;
   const userInitials = user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
+  const isLocalProvider = user?.provider === 'LOCAL' || !user?.provider;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 transition-colors duration-500">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 transition-colors duration-500 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden mb-8 transition-colors duration-300">
@@ -84,7 +111,6 @@ const Profile = () => {
                 {role === 'WORKER' && user?.department && (
                   <span className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">• {user.department}</span>
                 )}
-                {/* Display Location in Header */}
                 {(user?.district || user?.taluka) && (
                     <span className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
                         • <MapPin size={12}/> {user.taluka ? `${user.taluka}, ` : ''}{user.district}
@@ -121,16 +147,27 @@ const Profile = () => {
           <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-8 transition-colors duration-300">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">Contact Information</h2>
-              {!isEditing ? (
-                <button onClick={() => setIsEditing(true)} className="text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-2">
-                  <Edit2 size={16} /> Edit
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <button onClick={() => setIsEditing(false)} className="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors">Cancel</button>
-                  <button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"><Save size={16} /> Save Changes</button>
-                </div>
-              )}
+              <div className="flex gap-3">
+                  {isLocalProvider && !isEditing && (
+                    <button 
+                        onClick={() => setIsPasswordModalOpen(true)}
+                        className="text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+                    >
+                        <Lock size={16} /> Change Password
+                    </button>
+                  )}
+
+                  {!isEditing ? (
+                    <button onClick={() => setIsEditing(true)} className="text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-2">
+                    <Edit2 size={16} /> Edit
+                    </button>
+                  ) : (
+                    <div className="flex gap-2">
+                    <button onClick={() => setIsEditing(false)} className="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors">Cancel</button>
+                    <button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"><Save size={16} /> Save Changes</button>
+                    </div>
+                  )}
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -153,7 +190,6 @@ const Profile = () => {
                 </div>
               )}
 
-              {/* NEW: District & Taluka (Read-only mostly, unless you add dropdown logic for edit) */}
               {role !== 'ADMIN' && (
                   <>
                     <div className="space-y-2">
@@ -251,6 +287,94 @@ const Profile = () => {
             )}
           </div>
         )}
+
+        {isPasswordModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-800 overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
+                    <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                             <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
+                                <ShieldCheck size={20} />
+                             </div>
+                             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Change Password</h3>
+                        </div>
+                        <button onClick={() => setIsPasswordModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                            <X size={20} />
+                        </button>
+                    </div>
+                    
+                    <form onSubmit={handleChangePassword} className="p-6 space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Current Password</label>
+                            <div className="relative">
+                                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input 
+                                    type="password" 
+                                    required
+                                    value={passData.oldPassword}
+                                    onChange={(e) => setPassData({...passData, oldPassword: e.target.value})}
+                                    placeholder="Enter old password"
+                                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">New Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input 
+                                    type="password" 
+                                    required
+                                    minLength={8}
+                                    value={passData.newPassword}
+                                    onChange={(e) => setPassData({...passData, newPassword: e.target.value})}
+                                    placeholder="Min 8 characters"
+                                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Confirm New Password</label>
+                            <div className="relative">
+                                <CheckCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input 
+                                    type="password" 
+                                    required
+                                    minLength={8}
+                                    value={passData.confirmPassword}
+                                    onChange={(e) => setPassData({...passData, confirmPassword: e.target.value})}
+                                    placeholder="Re-enter new password"
+                                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${passData.confirmPassword && passData.newPassword !== passData.confirmPassword ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700'}`}
+                                />
+                            </div>
+                            {passData.confirmPassword && passData.newPassword !== passData.confirmPassword && (
+                                <p className="text-xs text-red-500 font-bold">Passwords do not match</p>
+                            )}
+                        </div>
+
+                        <div className="pt-2 flex gap-3">
+                            <button 
+                                type="button" 
+                                onClick={() => setIsPasswordModalOpen(false)}
+                                className="flex-1 py-2.5 rounded-xl font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit" 
+                                disabled={passLoading || (passData.newPassword !== passData.confirmPassword)}
+                                className="flex-1 py-2.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {passLoading ? <Loader2 className="animate-spin" size={18} /> : 'Update Password'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        )}
+
       </div>
     </div>
   );
