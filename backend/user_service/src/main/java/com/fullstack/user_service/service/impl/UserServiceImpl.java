@@ -254,6 +254,40 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public CommonResponse sendResetPasswordOtp(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return buildError("Email not found. Please register.", HttpStatus.NOT_FOUND);
+        }
+
+        if (!"LOCAL".equalsIgnoreCase(user.getProvider())) {
+            return buildError("This account uses " + user.getProvider() + " login. Password reset not available.", HttpStatus.FORBIDDEN);
+        }
+
+        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
+
+        EmailVerification verification = new EmailVerification();
+        verification.setEmail(email);
+        verification.setOtp(otp);
+        verification.setExpiryDate(LocalDateTime.now().plusMinutes(5));
+        emailVerificationRepository.save(verification);
+
+        try {
+            workerClient.sendRegistrationOtp(email, otp);
+        } catch (Exception e) {
+            return buildError("Failed to send email: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        CommonResponse response = new CommonResponse();
+        response.setMessage("OTP Sent Successfully");
+        response.setResponseStatus(ResponseStatus.SUCCESS);
+        response.setStatus(HttpStatus.OK);
+        response.setStatusCode(200);
+        return response;
+    }
+
+
+    @Override
     public CommonResponse updateUser(HttpServletRequest request, UserRequest userRequest) {
         Claims userClaims = (Claims) request.getAttribute("userClaims");
         if (userClaims == null) return buildError("Unauthorized", HttpStatus.UNAUTHORIZED);
