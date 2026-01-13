@@ -10,6 +10,8 @@ public class CustomerResponse {
     private String email;
     private String role;
     private String phoneNumber;
+    private String district;
+    private String taluka;
     private String address;
     private int pinCode;
     private Date createdOn;

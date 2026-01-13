@@ -463,6 +463,8 @@ public class UserServiceImpl implements IUserService {
         res.setEmail(user.getEmail());
         res.setRole(user.getRole().name());
         res.setPhoneNumber(customer.getPhoneNumber());
+        res.setDistrict(customer.getDistrict());
+        res.setTaluka(customer.getTaluka());
         res.setAddress(customer.getAddress());
         res.setPinCode(customer.getPinCode());
         res.setCreatedOn(user.getCreatedOn());
