@@ -6,6 +6,7 @@ import {
   KeyRound, ShieldCheck, CheckCircle2, X, ChevronRight 
 } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
+import Swal from 'sweetalert2';
 
 const Login = ({ theme, toggleTheme }) => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Login = ({ theme, toggleTheme }) => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   
   const [showForgotModal, setShowForgotModal] = useState(false);
-  const [resetStep, setResetStep] = useState(1);
+  const [resetStep, setResetStep] = useState(1); 
   const [resetEmail, setResetEmail] = useState('');
   const [resetOtp, setResetOtp] = useState('');
   const [newPass, setNewPass] = useState({ password: '', confirm: '' });
@@ -36,16 +37,37 @@ const Login = ({ theme, toggleTheme }) => {
         if (result.role === 'WORKER') navigate('/worker-dashboard');
         else if (result.role === 'ADMIN') navigate('/admin-dashboard');
         else navigate('/book-service');
-    } else if (result?.isNewUser) {
     }
   };
 
   const handleSendResetOtp = async (e) => {
     e.preventDefault();
-    setIsResetLoading(true);
-    const success = await sendResetOtp(resetEmail); 
-    setIsResetLoading(false);
-    if(success) setResetStep(2);
+    if (!resetEmail) return;
+    const result = await Swal.fire({
+        title: 'Verify Email',
+        text: `We will verify ${resetEmail}`,
+        icon: 'question',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Send New OTP',
+        denyButtonText: 'I have the Code',
+        confirmButtonColor: '#4f46e5',
+        denyButtonColor: '#10b981',
+        cancelButtonColor: '#64748b',
+        background: theme === 'dark' ? '#1e293b' : '#fff',
+        color: theme === 'dark' ? '#fff' : '#1e293b',
+        scrollbarPadding:false
+    });
+
+    if (result.isConfirmed) {
+        setIsResetLoading(true);
+        setResetOtp(''); 
+        const success = await sendResetOtp(resetEmail);
+        setIsResetLoading(false);
+        if(success) setResetStep(2);
+    } else if (result.isDenied) {
+        setResetStep(2);
+    }
   };
 
   const handleVerifyResetOtp = (e) => {
@@ -175,7 +197,7 @@ const Login = ({ theme, toggleTheme }) => {
 
                 {resetStep === 1 && (
                     <form onSubmit={handleSendResetOtp} className="p-6 space-y-4">
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Enter your registered email address. We will send you a verification code.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Enter your registered email address.</p>
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Email</label>
                             <input 
@@ -189,7 +211,7 @@ const Login = ({ theme, toggleTheme }) => {
                             />
                         </div>
                         <button type="submit" disabled={isResetLoading} className="w-full py-2.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
-                            {isResetLoading ? <Loader2 className="animate-spin" size={18} /> : <>Send OTP <ChevronRight size={18}/></>}
+                            {isResetLoading ? <Loader2 className="animate-spin" size={18} /> : <>Continue <ChevronRight size={18}/></>}
                         </button>
                     </form>
                 )}
@@ -218,7 +240,7 @@ const Login = ({ theme, toggleTheme }) => {
                         <button type="button" onClick={() => setResetStep(1)} className="w-full text-xs font-bold text-slate-500 hover:text-indigo-600">Wrong Email?</button>
                     </form>
                 )}
-
+                
                 {resetStep === 3 && (
                     <form onSubmit={handleFinalReset} className="p-6 space-y-4">
                         <div className="space-y-2">
