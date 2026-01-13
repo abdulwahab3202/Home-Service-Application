@@ -12,6 +12,7 @@ import com.fullstack.user_service.repository.CustomerRepository;
 import com.fullstack.user_service.repository.EmailVerificationRepository;
 import com.fullstack.user_service.repository.UserRepository;
 import com.fullstack.user_service.request.ChangePasswordRequest;
+import com.fullstack.user_service.request.ResetPasswordRequest;
 import com.fullstack.user_service.request.UserRequest;
 import com.fullstack.user_service.request.WorkerRequest;
 import com.fullstack.user_service.response.CustomerResponse;
@@ -135,7 +136,12 @@ public class UserServiceImpl implements IUserService {
         user.setUpdatedOn(new Date());
 
         if ("LOCAL".equalsIgnoreCase(user.getProvider())) {
-            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+            if(userRequest.getPassword().length() < 8){
+                return buildError("Password must be at least 8 characters.", HttpStatus.BAD_REQUEST);
+            }
+            else{
+                user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+            }
         }
 
         if (ADMIN_EMAIL.equalsIgnoreCase(userRequest.getEmail())) {
@@ -326,6 +332,43 @@ public class UserServiceImpl implements IUserService {
         }
 
         response.setMessage("User Retrieved");
+        response.setResponseStatus(ResponseStatus.SUCCESS);
+        response.setStatus(HttpStatus.OK);
+        response.setStatusCode(200);
+        return response;
+    }
+
+    @Override
+    public CommonResponse resetPassword(ResetPasswordRequest request) {
+        EmailVerification verification = emailVerificationRepository.findById(request.getEmail());
+        if (verification == null) {
+            return buildError("OTP expired. Please request a new code.", HttpStatus.BAD_REQUEST);
+        }
+        if (!verification.getOtp().equals(request.getOtp())) {
+            return buildError("Invalid OTP.", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userRepository.findByEmail(request.getEmail());
+        if (user == null) {
+            return buildError("User not found with this email.", HttpStatus.NOT_FOUND);
+        }
+
+        if (!"LOCAL".equalsIgnoreCase(user.getProvider())) {
+            return buildError("Account uses " + user.getProvider() + " login. Cannot reset password.", HttpStatus.FORBIDDEN);
+        }
+
+        if (request.getNewPassword().length() < 8) {
+            return buildError("Password must be at least 8 characters.", HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedOn(new Date());
+        userRepository.save(user);
+
+        emailVerificationRepository.deleteById(request.getEmail());
+
+        CommonResponse response = new CommonResponse();
+        response.setMessage("Password Reset Successfully");
         response.setResponseStatus(ResponseStatus.SUCCESS);
         response.setStatus(HttpStatus.OK);
         response.setStatusCode(200);
