@@ -2,6 +2,7 @@ package com.fullstack.user_service.controller.impl;
 
 import com.fullstack.user_service.controller.IUserController;
 import com.fullstack.user_service.model.CommonResponse;
+import com.fullstack.user_service.request.ChangePasswordRequest;
 import com.fullstack.user_service.request.UserRequest;
 import com.fullstack.user_service.service.IUserService;
 import com.fullstack.user_service.model.ResponseStatus;
@@ -113,6 +114,16 @@ public class UserController implements IUserController {
             return ResponseEntity.status(response.getStatusCode()).body(response);
         } catch (Exception e) {
             return exceptionHandler(e, "Get User Info");
+        }
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> changePassword(HttpServletRequest request, ChangePasswordRequest changePasswordRequest) {
+        try {
+            CommonResponse response = userService.changePassword(request, changePasswordRequest);
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception e) {
+            return exceptionHandler(e, "Change Password");
         }
     }
 

@@ -477,6 +477,31 @@ const StoreContextProvider = (props) => {
       finally { setIsLoading(false); }
   };
 
+  const changePassword = async (passwordData) => {
+    setIsLoading(true);
+    try {
+      const res = await axios.put(
+        `${USER_URL}/change-password`,
+        passwordData,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+
+      if (res.data.responseStatus === "SUCCESS") {
+        toast.success(res.data.message);
+        return true;
+      } else {
+        toast.error(res.data.message || "Failed to change password");
+        return false;
+      }
+    } catch (error) {
+      console.error("Change Password Error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong.");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const updateProfile = async (updatedData) => {
     setIsLoading(true);
     try {
@@ -510,8 +535,8 @@ const StoreContextProvider = (props) => {
   const contextValue = {
     token, user, role, isSignedIn, isProfileComplete, isLoading,
     workerHistory, adminStats, bookings, availableJobs, activeJob, 
-    allBookings, customersList, workersList,   
-    loginUser, googleLogin, registerUser, logout, 
+    allBookings, customersList, workersList,
+    loginUser, googleLogin, registerUser, logout,  changePassword,
     fetchCustomerBookings, createBooking, updateBooking,
     fetchWorkerDashboardData, fetchAdminDashboardData,
     acceptJob, revokeJob, generateAssignmentOtp,
