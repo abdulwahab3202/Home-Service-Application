@@ -509,6 +509,26 @@ const StoreContextProvider = (props) => {
      return false;
   };
 
+  const verifyResetOtp = async (email, otp) => {
+    setIsLoading(true);
+    try {
+      const res = await axios.post(`${USER_URL}/auth/verify-otp?email=${email}&otp=${otp}`);
+      
+      if (res.data.responseStatus === "SUCCESS") {
+        toast.success("OTP Verified!");
+        return true;
+      } else {
+        toast.error("Invalid OTP. Please try again.");
+        return false;
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid OTP");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const resetUserPassword = async (data) => {
     setIsLoading(true);
     try {
@@ -590,7 +610,7 @@ const StoreContextProvider = (props) => {
     allBookings, customersList, workersList,
     loginUser, googleLogin, registerUser, logout,  changePassword,
     fetchCustomerBookings, createBooking, updateBooking,
-    fetchWorkerDashboardData, fetchAdminDashboardData,
+    fetchWorkerDashboardData, fetchAdminDashboardData, verifyResetOtp,
     acceptJob, revokeJob, generateAssignmentOtp, resetUserPassword,
     completeJob, deleteBooking, fetchUserProfile, sendOtp,
     updateProfile, deleteUser, deleteWorker, sendResetOtp
