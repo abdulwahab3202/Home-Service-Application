@@ -27,6 +27,8 @@ public interface IUserService {
 
     CommonResponse getUserContactInfo(String userId);
 
+    CommonResponse sendResetPasswordOtp(String email);
+
     CommonResponse resetPassword(ResetPasswordRequest request);
 
     CommonResponse changePassword(HttpServletRequest request, ChangePasswordRequest changePasswordRequest);

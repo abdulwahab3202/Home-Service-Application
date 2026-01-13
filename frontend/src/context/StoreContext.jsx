@@ -493,6 +493,22 @@ const StoreContextProvider = (props) => {
      return false;
   };
 
+  const sendResetOtp = async (email) => {
+     setIsLoading(true);
+     try {
+        const res = await axios.post(`${USER_URL}/auth/send-reset-otp?email=${email}`);
+        if(res.data.responseStatus === "SUCCESS"){
+            toast.success("OTP sent to your email.");
+            return true;
+        }
+     } catch (error) {
+        toast.error(error.response?.data?.message || "Failed to send OTP");
+     } finally {
+        setIsLoading(false);
+     }
+     return false;
+  };
+
   const resetUserPassword = async (data) => {
     setIsLoading(true);
     try {
@@ -577,7 +593,7 @@ const StoreContextProvider = (props) => {
     fetchWorkerDashboardData, fetchAdminDashboardData,
     acceptJob, revokeJob, generateAssignmentOtp, resetUserPassword,
     completeJob, deleteBooking, fetchUserProfile, sendOtp,
-    updateProfile, deleteUser, deleteWorker
+    updateProfile, deleteUser, deleteWorker, sendResetOtp
   };
 
   return (

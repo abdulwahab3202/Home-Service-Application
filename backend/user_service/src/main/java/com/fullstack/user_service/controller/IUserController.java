@@ -15,6 +15,9 @@ public interface IUserController {
     @PostMapping("/auth/send-otp")
     ResponseEntity<CommonResponse> sendOtp(@RequestParam String email);
 
+    @PostMapping("/auth/send-reset-otp")
+    ResponseEntity<CommonResponse> sendResetOtp(@RequestParam String email);
+
     @PostMapping("/auth/verify-otp")
     ResponseEntity<CommonResponse> verifyOtp(@RequestParam String email, @RequestParam String otp);
 

@@ -45,6 +45,16 @@ public class UserController implements IUserController {
     }
 
     @Override
+    public ResponseEntity<CommonResponse> sendResetOtp(String email) {
+        try {
+            CommonResponse response = userService.sendResetPasswordOtp(email);
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception e) {
+            return exceptionHandler(e, "Send Reset OTP");
+        }
+    }
+
+    @Override
     public ResponseEntity<CommonResponse> verifyOtp(String email, String otp) {
         try {
             CommonResponse response = userService.verifyOtp(email, otp);

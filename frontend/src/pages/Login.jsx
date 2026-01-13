@@ -9,7 +9,7 @@ import { GoogleLogin } from '@react-oauth/google';
 
 const Login = ({ theme, toggleTheme }) => {
   const navigate = useNavigate();
-  const { loginUser, googleLogin, sendOtp, resetUserPassword, isLoading } = useContext(StoreContext);
+  const { loginUser, googleLogin, sendResetOtp, resetUserPassword, isLoading } = useContext(StoreContext);
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   
@@ -43,7 +43,7 @@ const Login = ({ theme, toggleTheme }) => {
   const handleSendResetOtp = async (e) => {
     e.preventDefault();
     setIsResetLoading(true);
-    const success = await sendOtp(resetEmail);
+    const success = await sendResetOtp(resetEmail); 
     setIsResetLoading(false);
     if(success) setResetStep(2);
   };
