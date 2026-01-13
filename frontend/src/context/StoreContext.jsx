@@ -477,6 +477,42 @@ const StoreContextProvider = (props) => {
       finally { setIsLoading(false); }
   };
 
+  const sendOtp = async (email) => {
+     setIsLoading(true);
+     try {
+        const res = await axios.post(`${USER_URL}/auth/send-otp?email=${email}`);
+        if(res.data.responseStatus === "SUCCESS"){
+            toast.success("OTP sent to your email.");
+            return true;
+        }
+     } catch (error) {
+        toast.error(error.response?.data?.message || "Failed to send OTP");
+     } finally {
+        setIsLoading(false);
+     }
+     return false;
+  };
+
+  const resetUserPassword = async (data) => {
+    setIsLoading(true);
+    try {
+      const res = await axios.post(`${USER_URL}/auth/reset-password`, data);
+      if (res.data.responseStatus === "SUCCESS") {
+        toast.success("Password reset successfully! Please login.");
+        return true;
+      } else {
+        toast.error(res.data.message || "Reset failed");
+        return false;
+      }
+    } catch (error) {
+       console.error(error);
+       toast.error(error.response?.data?.message || "Server Error");
+       return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const changePassword = async (passwordData) => {
     setIsLoading(true);
     try {
@@ -539,8 +575,8 @@ const StoreContextProvider = (props) => {
     loginUser, googleLogin, registerUser, logout,  changePassword,
     fetchCustomerBookings, createBooking, updateBooking,
     fetchWorkerDashboardData, fetchAdminDashboardData,
-    acceptJob, revokeJob, generateAssignmentOtp,
-    completeJob, deleteBooking, fetchUserProfile,
+    acceptJob, revokeJob, generateAssignmentOtp, resetUserPassword,
+    completeJob, deleteBooking, fetchUserProfile, sendOtp,
     updateProfile, deleteUser, deleteWorker
   };
 

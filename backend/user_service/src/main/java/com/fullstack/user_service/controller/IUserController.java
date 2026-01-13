@@ -2,6 +2,7 @@ package com.fullstack.user_service.controller;
 
 import com.fullstack.user_service.model.CommonResponse;
 import com.fullstack.user_service.request.ChangePasswordRequest;
+import com.fullstack.user_service.request.ResetPasswordRequest;
 import com.fullstack.user_service.request.UserRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -11,20 +12,23 @@ import java.util.Map;
 
 public interface IUserController {
 
-    @PostMapping("/register")
-    ResponseEntity<CommonResponse> register(@RequestBody UserRequest userRequest);
-
     @PostMapping("/auth/send-otp")
     ResponseEntity<CommonResponse> sendOtp(@RequestParam String email);
 
     @PostMapping("/auth/verify-otp")
     ResponseEntity<CommonResponse> verifyOtp(@RequestParam String email, @RequestParam String otp);
 
-    @PostMapping("/login")
-    ResponseEntity<CommonResponse> login(@RequestBody UserRequest userRequest);
-
     @PostMapping("/auth/google")
     ResponseEntity<CommonResponse> googleLogin(@RequestBody Map<String, String> payload);
+
+    @PostMapping("/auth/reset-password")
+    ResponseEntity<CommonResponse> resetPassword(@RequestBody ResetPasswordRequest request);
+
+    @PostMapping("/register")
+    ResponseEntity<CommonResponse> register(@RequestBody UserRequest userRequest);
+
+    @PostMapping("/login")
+    ResponseEntity<CommonResponse> login(@RequestBody UserRequest userRequest);
 
     @GetMapping("/get-all")
     ResponseEntity<CommonResponse> getAllUsers();
