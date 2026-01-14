@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { StoreContext } from '../context/StoreContext';
+import { toast } from 'react-toastify';
 
 const formatDate = (dateInput) => {
   if (!dateInput) return "Date N/A";
@@ -169,20 +170,10 @@ const WorkerDashboard = () => {
           setOtp(['', '', '', '']);
           setShowOtpModal(true);
         } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Email Failed',
-            text: response?.message || 'Could not connect to email server.',
-            scrollbarPadding: false
-          });
+          toast.error(response?.message || 'Could not connect to email server');
         }
       } catch (e) {
-        Swal.fire({
-            title: 'Error', 
-            text: 'Network error occurred', 
-            icon: 'error',
-            scrollbarPadding: false
-        });
+        toast.error('Network Error Occured');
       }
     } else if (result.isDenied) {
       setOtp(['', '', '', '']); 
@@ -223,12 +214,7 @@ const WorkerDashboard = () => {
   const handleSubmitOtp = async () => {
     const finalOtp = otp.join('');
     if (finalOtp.length !== 4) {
-      Swal.fire({
-        title: 'Invalid Input',
-        text: "Please enter a 4-digit OTP",
-        icon: 'warning',
-        scrollbarPadding: false
-      });
+      toast.error('Please enter a 4 digit OTP');
       return;
     }
     try {
@@ -239,21 +225,10 @@ const WorkerDashboard = () => {
       } 
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        Swal.fire({
-          title: 'Incorrect OTP',
-          text: "The code you entered is invalid. Please check the email and try again.",
-          icon: 'warning',
-          confirmButtonColor: '#f59e0b',
-          scrollbarPadding: false
-        });
+        toast.error('Incorrect OTP');
       } 
       else {
-        Swal.fire({
-          title: 'Error',
-          text: error.response?.data?.message || "An unexpected network error occurred.",
-          icon: 'error',
-          scrollbarPadding: false
-        });
+        toast.error(error.response?.data?.message || "An unexpected network error occurred");
       }
     }
   };
@@ -287,7 +262,6 @@ const WorkerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 transition-colors duration-500">
-      {/* OTP MODAL */}
       {showOtpModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-in zoom-in-95 border border-slate-100 dark:border-slate-800">

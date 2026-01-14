@@ -5,6 +5,7 @@ import {
   CheckCircle, Clock, Briefcase, 
   Map, Loader2, Lock, X, KeyRound, ShieldCheck
 } from 'lucide-react';
+import SearchableSelect from '../components/SearchableSelect'; 
 
 const formatDate = (dateInput) => {
   if (!dateInput) return "N/A";
@@ -27,10 +28,54 @@ const Profile = () => {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passData, setPassData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [passLoading, setPassLoading] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', address: '',  pincode: '', department: '',
     district: '', taluka: ''
   });
+
+  const tamilNaduData = {
+    "Ariyalur": ["Andimadam", "Ariyalur", "Sendurai", "Udayarpalayam"],
+    "Chengalpattu": ["Chengalpattu", "Cheyyur", "Maduramdagam", "Pallavaram", "Tambaram", "Thiruporur", "Tirukalukundram", "Vandalur"],
+    "Chennai": ["Alandur", "Ambattur", "Aminjikarai", "Ayanavaram", "Egmore", "Guindy", "Kolathur", "Madhavaram", "Maduravoyal", "Mambalam", "Mylapore", "Perambur", "Purasawalkam", "Shozhinganallur", "Thiruvottiyur", "Tondiarpet", "Velachery"],
+    "Coimbatore": ["Anaimalai", "Annur", "Coimbatore (N)", "Coimbatore (S)", "Kinathukadavu", "Madukkarai", "Mettupalayam", "Perur", "Pollachi", "Sulur", "Valparai"],
+    "Cuddalore": ["Bhuvanagiri", "Chidambaram", "Cuddalore", "Kattumannarkoil", "Kurinjipadi", "Panruti", "Srimushnam", "Titagudi", "Veppur", "Vridhachalam"],
+    "Dharmapuri": ["Dharmapuri", "Harur", "Karimangalam", "Nallampalli", "Palacode", "Pappireddipatty", "Pennagaram"],
+    "Dindigul": ["Athoor", "Dindigul East", "Dindigul West", "Gujiliamparai", "Kodaikanal", "Natham", "Nilakottai", "Oddenchatram", "Palani", "Vedasandur"],
+    "Erode": ["Anthiyur", "Bhavani", "Erode", "Gobichettipalayam", "Kodumudi", "Modakkurichi", "Nambiyur", "Perundurai", "Sathyamangalam", "Thalavadi"],
+    "Kallakurichi": ["Chinnasalem", "Kallakurichi", "Kalvarayan Hills", "Sankarapuram", "Tirukkoilur", "Ulundurpet", "Vanapuram"],
+    "Kancheepuram": ["Kancheepuram", "Kundrathur", "Sriperumbudur", "Uthiramerur", "Walajabad"],
+    "Kanyakumari": ["Agastheeswaram", "Kalkulam", "Killiyoor", "Thiruvattar", "Thovalai", "Vilavamcode"],
+    "Karur": ["Arvakurichi", "Kadavur", "Karur", "Krishnarayapuram", "Kulithalai", "Manmangalam", "Pugalur"],
+    "Krishnagiri": ["Anchetty", "Bargur", "Denkanikottai", "Hosur", "Krishnagiri", "Pochampalli", "Shoolagiri", "Uthangarai"],
+    "Madurai": ["Kalligudi", "Madurai East", "Madurai North", "Madurai South", "Madurai West", "Melur", "Peraiyur", "Thiruparankundram", "Tirumangalam", "Usilampatti", "Vadipatti"],
+    "Mayiladuthurai": ["Kuthalam", "Mayiladuthurai", "Sirkazhi", "Tharangambadi"],
+    "Nagapattinam": ["Kilvelur", "Nagapattinam", "Thirukkuvalai", "Vedaranyam"],
+    "Namakkal": ["Kolli Hills", "Kumarapalayam", "Mohanur", "Namakkal", "Paramathivelur", "Rasipuram", "Sendamangalam", "Thiruchengode"],
+    "Nilgiris": ["Coonoor", "Gudalur", "Kotagiri", "Kundah", "Pandalur", "Udhagai"],
+    "Perambalur": ["Alathur", "Kunnam", "Perambalur", "Veppanthattai"],
+    "Pudukkottai": ["Alangudi", "Aranthangi", "Avudaiyarkoil", "Gandarvakottai", "Illupur", "Karambakudi", "Kulathur", "Manamelkudi", "Ponnamaravathi", "Pudukkottai", "Thirumayam", "Viralimalai"],
+    "Ramanathapuram": ["Kadaladi", "Kamuthi", "Kilakarai", "Mudukulathur", "Paramakudi", "Rajasingamangalam", "Ramanathapuram", "Rameshwaram", "Thiruvadani"],
+    "Ranipet": ["Arakkonam", "Arcot", "Kalavai", "Nemili", "Sholinghur", "Walajapet"],
+    "Salem": ["Attur", "Edappady", "Gangavalli", "Kadayampatti", "Mettur", "Omalur", "Pethanaickenpalayam", "Salem", "Salem South", "Salem West", "Sankari", "Thalaivasal", "Valapady", "Yercaud"],
+    "Sivagangai": ["Devakottai", "Ilayankudi", "Kalaiyarkovil", "Karaikudi", "Manamadurai", "Singampunari", "Sivaganga", "Thiruppattur", "Thiruppuvanam"],
+    "Tenkasi": ["Alangulam", "Kadayanallur", "Sankarankoil", "Shenkottai", "Sivagiri", "Tenkasi", "Thiruvengadam", "Veerakeralampudur"],
+    "Thanjavur": ["Budalur", "Kumbakonam", "Orathanad", "Papanasam", "Pattukkotai", "Peravurani", "Thanjavur", "Thiruvaiyaru", "Thiruvidaimarudur", "Thiruvonam"],
+    "Theni": ["Aundipatti", "Bodinayakkanur", "Periyakulam", "Theni", "Uthamapalayam"],
+    "Thiruchirappalli": ["Lalgudi", "Manachanallur", "Manapparai", "Marungapuri", "Musiri", "Srirangam", "Thiruverumbur", "Thottiam", "Thuraiyur", "Tiruchirappalli East", "Tiruchirappalli West"],
+    "Thirupathur": ["Ambur", "Natarampalli", "Tirupathur", "Vaniyambadi"],
+    "Thiruvarur": ["Koothanallur", "Kudavasal", "Mannargudi", "Muthpettai", "Nannilam", "Needamangalam", "Thiruthuraipoondi", "Thiruvarur", "Valangaiman"],
+    "Thoothukkudi": ["Eral", "Ettayapuram", "Kayathar", "Kovilpatti", "Ottapidaram", "Sattankulam", "Srivaikundam", "Thoothukkudi", "Tiruchendur", "Vilathikulam"],
+    "Tirunelveli": ["Ambasamudram", "Cheranmahadevi", "Manur", "Nanguneri", "Palayamkottai", "Radhapuram", "Thisayanvilai", "Tirunelveli"],
+    "Tiruppur": ["Avinashi", "Dharapuram", "Kangayam", "Madathukulam", "Palladam", "Tiruppur North", "Tiruppur South", "Udumalaipet", "Uthukuli"],
+    "Tiruvallur": ["Avadi", "Gummidipoondi", "Pallipet", "Ponneri", "Poonamallee", "R.K. Pet", "Tiruttani", "Tiruvallur", "Uthukottai"],
+    "Tiruvannamalai": ["Arani", "Chengam", "Chetpet", "Cheyyar", "Jamunamarathoor", "Kalasapakkam", "Kilpennathur", "Polur", "Thandarampattu", "Tiruvannamalai", "Vandavasi", "Vembakkam"],
+    "Vellore": ["Anaicut", "Gudiyatham", "Katpadi", "K.V. Kuppam", "Pernambut", "Vellore"],
+    "Villuppuram": ["Gingee", "Kandacheepuram", "Marakkanam", "Melmalaiyanoor", "Thiruvennainallur", "Tindivanam", "Vanur", "Vikravandi", "Villuppuram"],
+    "Virudhunagar": ["Aruppukkottai", "Kariyapatti", "Rajapalayam", "Sattur", "Sivakasi", "Srivilliputhur", "Tiruchuli", "Vembakkottai", "Virudhunagar", "Watrap"]
+  };
+  const districtList = Object.keys(tamilNaduData).sort();
+  const getTalukas = (dist) => tamilNaduData[dist] || [];
 
   useEffect(() => { fetchUserProfile(); }, []);
 
@@ -194,15 +239,37 @@ const Profile = () => {
                   <>
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">District</label>
-                        <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700">
-                            <Map size={18} className="text-slate-400 dark:text-slate-500"/> {user?.district || "Not Provided"}
-                        </div>
+                        {isEditing ? (
+                            <SearchableSelect 
+                                options={districtList}
+                                value={formData.district}
+                                onChange={(val) => setFormData({...formData, district: val, taluka: ''})}
+                                placeholder="Select District"
+                                icon={Map}
+                            />
+                        ) : (
+                            <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700">
+                                <Map size={18} className="text-slate-400 dark:text-slate-500"/> {user?.district || "Not Provided"}
+                            </div>
+                        )}
                     </div>
+
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Taluka</label>
-                        <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700">
-                            <MapPin size={18} className="text-slate-400 dark:text-slate-500"/> {user?.taluka || "Not Provided"}
-                        </div>
+                        {isEditing ? (
+                            <SearchableSelect 
+                                options={getTalukas(formData.district)}
+                                value={formData.taluka}
+                                onChange={(val) => setFormData({...formData, taluka: val})}
+                                placeholder="Select Taluka"
+                                icon={MapPin}
+                                disabled={!formData.district}
+                            />
+                        ) : (
+                            <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700">
+                                <MapPin size={18} className="text-slate-400 dark:text-slate-500"/> {user?.taluka || "Not Provided"}
+                            </div>
+                        )}
                     </div>
                   </>
               )}

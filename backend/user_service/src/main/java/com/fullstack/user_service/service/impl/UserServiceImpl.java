@@ -507,6 +507,8 @@ public class UserServiceImpl implements IUserService {
             if (request.getPhoneNumber() != null) customer.setPhoneNumber(request.getPhoneNumber());
             if (request.getAddress() != null) customer.setAddress(request.getAddress());
             if (request.getPinCode() != 0) customer.setPinCode(request.getPinCode());
+            if (request.getDistrict() != null && !request.getDistrict().isEmpty()) customer.setDistrict(request.getDistrict());
+            if (request.getTaluka() != null && !request.getTaluka().isEmpty()) customer.setTaluka(request.getTaluka());
             customerRepository.save(customer);
         }
     }
@@ -516,6 +518,8 @@ public class UserServiceImpl implements IUserService {
         workerRequest.setName(request.getName());
         workerRequest.setPhoneNumber(request.getPhoneNumber());
         workerRequest.setDepartment(request.getDepartment());
+        workerRequest.setDistrict(request.getDistrict());
+        workerRequest.setTaluka(request.getTaluka());
         workerClient.updateWorkerProfile(userId, workerRequest);
     }
 
