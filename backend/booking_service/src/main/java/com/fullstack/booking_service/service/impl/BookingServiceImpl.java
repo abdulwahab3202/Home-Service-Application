@@ -67,6 +67,7 @@ public class BookingServiceImpl implements IBookingService {
         newRequest.setImageUrl(imageUrl);
         newRequest.setStatus("OPEN");
         newRequest.setCreatedOn(new Date());
+        newRequest.setUpdatedOn(new Date());
 
         bookingRepository.save(newRequest);
 
@@ -161,20 +162,33 @@ public class BookingServiceImpl implements IBookingService {
     public CommonResponse updateBooking(String id, UpdateBookingRequest req) {
         CommonResponse response = new CommonResponse();
         ServiceRequest request = bookingRepository.findById(id);
+
         if (request == null) return buildErrorResponse("Booking not found", HttpStatus.NOT_FOUND);
+
         if(request.getStatus().equalsIgnoreCase("ASSIGNED") ||
                 request.getStatus().equalsIgnoreCase("COMPLETED")){
-            return buildErrorResponse("Booking is already ASSIGNED or COMPLETED, Cannot update booking", HttpStatus.NOT_ACCEPTABLE);
+            return buildErrorResponse("Booking is already in progress/completed. Cannot update details.", HttpStatus.NOT_ACCEPTABLE);
         }
 
         if (req.getTitle() != null && !req.getTitle().isEmpty()) request.setTitle(req.getTitle());
-        if (req.getDescription() != null) request.setDescription(req.getDescription());
-        if (req.getAddress() != null) request.setAddress(req.getAddress());
+        if (req.getDescription() != null && !req.getDescription().isEmpty()) request.setDescription(req.getDescription());
+        if (req.getAddress() != null && !req.getAddress().isEmpty()) request.setAddress(req.getAddress());
+        if (req.getDistrict() != null && !req.getDistrict().isEmpty()) request.setDistrict(req.getDistrict());
+        if (req.getTaluka() != null && !req.getTaluka().isEmpty()) request.setTaluka(req.getTaluka());
+        if (req.getImage() != null && !req.getImage().isEmpty()) {
+            try {
+                String newImageUrl = uploadImageToCloudinary(req.getImage());
+                request.setImageUrl(newImageUrl);
+            } catch (IOException e) {
+                return buildErrorResponse("Failed to update image: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
 
+        request.setUpdatedOn(new Date());
         bookingRepository.save(request);
 
         response.setResponseStatus(ResponseStatus.SUCCESS);
-        response.setMessage("Updated Successfully");
+        response.setMessage("Booking Updated Successfully");
         response.setData(toDTO(request));
         response.setStatus(HttpStatus.OK);
         response.setStatusCode(HttpStatus.OK.value());
@@ -238,6 +252,7 @@ public class BookingServiceImpl implements IBookingService {
         res.setStatus(req.getStatus());
         res.setCancellationReason(req.getCancellationReason());
         res.setCreatedOn(req.getCreatedOn());
+        res.setUpdatedOn(req.getUpdatedOn());
         return res;
     }
 }

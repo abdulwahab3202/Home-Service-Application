@@ -244,13 +244,24 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public CommonResponse getUserContactInfo(String userId){
+    public CommonResponse getUserContactInfo(String userId) {
         User user = userRepository.getUserById(userId);
-        if(user != null) {
-            UserContactDTO dto = new UserContactDTO(user.getName(), user.getEmail());
-            return new CommonResponse(HttpStatus.OK, ResponseStatus.SUCCESS, "Success", dto, 200);
+        if (user == null) {
+            return new CommonResponse(HttpStatus.NOT_FOUND, ResponseStatus.FAILED, "User Not Found", null, 404);
         }
-        return new CommonResponse(HttpStatus.NOT_FOUND, ResponseStatus.FAILED, "User Not Found", null, 404);
+
+        String phone = "N/A";
+
+        if (user.getRole() == UserRole.CUSTOMER) {
+            Customer customer = customerRepository.findByUserId(userId);
+            if (customer != null) {
+                phone = customer.getPhoneNumber();
+            }
+        }
+
+        UserContactDTO dto = new UserContactDTO(user.getName(), user.getEmail(), phone);
+
+        return new CommonResponse(HttpStatus.OK, ResponseStatus.SUCCESS, "Success", dto, 200);
     }
 
     @Override

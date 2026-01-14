@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class UserContactDTO {
     private String name;
     private String email;
+    private String phoneNumber;
 }

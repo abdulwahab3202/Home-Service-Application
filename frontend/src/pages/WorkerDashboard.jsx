@@ -1,7 +1,7 @@
 import React, { useEffect, useContext, useState, useRef } from 'react';
 import { 
   MapPin, Calendar, Clock, CheckCircle, AlertCircle, 
-  X, Maximize2, Briefcase, Loader2, Lock, Ban 
+  X, Maximize2, Briefcase, Loader2, Lock, Ban, Phone, Mail
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { StoreContext } from '../context/StoreContext';
@@ -15,18 +15,18 @@ const formatDate = (dateInput) => {
 };
 
 const WorkerJobCard = ({ job, activeJob, onAccept, onInitiateComplete, onRevoke, onImageClick, isActionable }) => {
-  // UPDATED: Check for imageUrl instead of imageBase64
   const hasImage = job.imageUrl && job.imageUrl.trim() !== "";
+  const showContact = !isActionable && (job.status === 'ASSIGNED' || job.status === 'IN_PROGRESS');
 
   return (
     <div className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col h-full">
+      
       <div 
         className={`relative h-48 w-full overflow-hidden ${hasImage ? 'cursor-pointer bg-slate-100 dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-800'}`}
-        onClick={() => hasImage && onImageClick(job.imageUrl)} // Pass URL
+        onClick={() => hasImage && onImageClick(job.imageUrl)}
       >
-        {hasImage ? (
+         {hasImage ? (
           <>
-            {/* UPDATED: Use imageUrl */}
             <img src={job.imageUrl} alt={job.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
               <div className="bg-white/90 backdrop-blur-sm p-2 rounded-full text-slate-800 shadow-lg transform scale-75 group-hover:scale-100 transition-transform">
@@ -58,19 +58,33 @@ const WorkerJobCard = ({ job, activeJob, onAccept, onInitiateComplete, onRevoke,
         <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
           {job.title}
         </h3>
+        
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 line-clamp-2 leading-relaxed">
           {job.description}
         </p>
+        
         <div className="my-4 h-px bg-slate-100 dark:bg-slate-800 w-full"></div>
         <div className="space-y-3 mt-auto">
             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-medium">
                 <Calendar size={14} className="text-indigo-400 dark:text-indigo-500" />
                 <span>{formatDate(job.createdOn || job.date)}</span>
             </div>
+            
             <div className="flex items-start gap-2 text-slate-500 dark:text-slate-400 text-xs font-medium">
                 <MapPin size={14} className="text-indigo-400 dark:text-indigo-500 mt-0.5 shrink-0" />
                 <span className="line-clamp-2">{job.address || "No address provided"}</span>
             </div>
+
+            {showContact && (
+                <div className="flex items-center gap-2 pt-1">
+                    <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded text-green-600 dark:text-green-400">
+                        <Phone size={12} />
+                    </div>
+                    <a href={`tel:${job.customerPhone}`} className="text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-green-600 dark:hover:text-green-400 transition-colors">
+                        {job.customerPhone || "Phone N/A"}
+                    </a>
+                </div>
+            )}
         </div>
       </div>
 

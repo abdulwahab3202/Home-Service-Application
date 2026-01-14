@@ -32,8 +32,9 @@ public interface IBookingController {
     @GetMapping("/user/{userId}")
     ResponseEntity<CommonResponse> getBookingsByUserId(@PathVariable String userId);
 
-    @PutMapping("/update/{id}")
-    ResponseEntity<CommonResponse> updateBooking(@PathVariable String id, @RequestBody UpdateBookingRequest request);
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<CommonResponse> updateBooking(@PathVariable String id, @ModelAttribute UpdateBookingRequest request
+    );
 
     @PutMapping("/update-status/{id}")
     ResponseEntity<CommonResponse> updateBookingStatus(@PathVariable String id, @RequestParam String status, @RequestParam(required = false) String reason);

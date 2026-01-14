@@ -88,7 +88,6 @@ const StoreContextProvider = (props) => {
             });
             if (res.data.responseStatus === "SUCCESS") {
                 const fullProfile = { ...user, ...res.data.data };
-                console.log(fullProfile);
                 if(fullProfile.phoneNumber && !fullProfile.phone) fullProfile.phone = fullProfile.phoneNumber;
                 setUser(fullProfile);
                 localStorage.setItem('user', JSON.stringify(fullProfile));
@@ -193,10 +192,17 @@ const StoreContextProvider = (props) => {
   const updateBooking = async (bookingId, updatedData) => {
     setIsLoading(true);
     try {
+      const isFormData = updatedData instanceof FormData;
+      
       const res = await axios.put(
         `${BOOKING_URL}/update/${bookingId}`, 
         updatedData, 
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { 
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': isFormData ? 'multipart/form-data' : 'application/json'
+            } 
+        }
       );
 
       if (res.data.responseStatus === "SUCCESS") {
@@ -235,10 +241,7 @@ const StoreContextProvider = (props) => {
       let jobsRes = { data: { data: [] } };
       try {
           jobsRes = await axios.get(`${WORKER_URL}/worker/get-all-complaints`, { headers });
-          console.log(jobsRes);
-      } catch (err) {
-          console.error("Worker Service (Complaints) failed:", err);
-      }
+      } catch (err) { console.error("Worker Service (Complaints) failed:", err); }
       setAvailableJobs(jobsRes.data.data || []);
 
       const myAssignsRes = await axios.get(`${WORKER_URL}/work-assignment/worker/${user.id}`, { headers });
@@ -248,7 +251,28 @@ const StoreContextProvider = (props) => {
         try {
             const bookingRes = await axios.get(`${BOOKING_URL}/get/${assignment.bookingId}`, { headers });
             if (bookingRes.data.responseStatus === "SUCCESS") {
-                return { ...assignment, ...bookingRes.data.data }; 
+                const bookingData = bookingRes.data.data;
+                let customerPhone = "No Phone";
+                let customerEmail = "Customer";
+
+                if(['ASSIGNED', 'IN_PROGRESS'].includes(assignment.status) && bookingData.userId) {
+                    try {
+                        const userRes = await axios.get(`${USER_URL}/contact-info/${bookingData.userId}`, { headers });
+                        if(userRes.data.responseStatus === "SUCCESS") {
+                             const contact = userRes.data.data;
+                             console.log(contact);
+                             customerPhone = contact.phoneNumber || contact.phone || "No Phone";
+                             customerEmail = contact.email || "Customer";
+                        }
+                    } catch(e) { console.error("Failed to fetch customer contact", e); }
+                }
+
+                return { 
+                    ...assignment, 
+                    ...bookingData, 
+                    customerPhone,
+                    customerEmail
+                }; 
             }
         } catch (e) {
             console.error(`Failed to load details for booking ${assignment.bookingId}`);
@@ -263,7 +287,8 @@ const StoreContextProvider = (props) => {
       if (activeAssignment) {
         setActiveJob({
           ...activeAssignment,
-          customerEmail: activeAssignment.customerEmail || activeAssignment.email || "Customer"
+          customerPhone: activeAssignment.customerPhone,
+          customerEmail: activeAssignment.customerEmail
         });
       } else {
         setActiveJob(null);
@@ -618,7 +643,7 @@ const StoreContextProvider = (props) => {
 
   return (
     <StoreContext.Provider value={contextValue}>
-      <ToastContainer position="top-right" autoClose={3000} theme="colored" transition={Zoom} />
+      <ToastContainer position="top-right" autoClose={1000} theme="colored" transition={Zoom} />
       {props.children}
     </StoreContext.Provider>
   );
