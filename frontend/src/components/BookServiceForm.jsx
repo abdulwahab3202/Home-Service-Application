@@ -3,7 +3,6 @@ import { StoreContext } from '../context/StoreContext';
 import { 
   X, Upload, Loader2, MapPin, Wrench, Zap, Droplets, Hammer, Map 
 } from 'lucide-react';
-// Import your custom component
 import SearchableSelect from '../components/SearchableSelect';
 
 const BookServiceForm = ({ onCancel, onSuccess }) => {
@@ -25,7 +24,6 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // --- 1. DATASET: Tamil Nadu Districts & Talukas ---
   const tamilNaduData = {
     "Ariyalur": ["Andimadam", "Ariyalur", "Sendurai", "Udayarpalayam"],
     "Chengalpattu": ["Chengalpattu", "Cheyyur", "Maduramdagam", "Pallavaram", "Tambaram", "Thiruporur", "Tirukalukundram", "Vandalur"],
@@ -70,7 +68,6 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
   const districtList = Object.keys(tamilNaduData).sort();
   const getTalukas = (dist) => tamilNaduData[dist] || [];
 
-  // --- 2. Initial Data Population ---
   useEffect(() => {
     if (user) {
         setFormData(prev => ({
@@ -104,7 +101,6 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Basic Validation
     if(!formData.district || !formData.taluka) {
         alert("Please select both District and Taluka");
         return;
