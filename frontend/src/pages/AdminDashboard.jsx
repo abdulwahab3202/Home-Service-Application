@@ -206,7 +206,7 @@ const AdminDashboard = () => {
                                     <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{b.title}</td>
                                     <td className="px-6 py-4"><StatusBadge status={b.status} /></td>
                                     <td className="px-6 py-4 text-right">
-                                       <button onClick={() => handleDelete(b.id, 'BOOKING')} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                                       <button onClick={() => handleDelete(b.id, 'BOOKING')} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
                                     </td>
                                  </tr>
                               )) : <tr><td colSpan="4" className="text-center py-8 text-slate-400 dark:text-slate-500">No bookings found.</td></tr>}
