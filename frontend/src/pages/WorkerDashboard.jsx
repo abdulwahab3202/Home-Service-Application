@@ -88,7 +88,7 @@ const WorkerJobCard = ({ job, activeJob, onAccept, onInitiateComplete, onRevoke,
         </div>
       </div>
 
-      <div className="mt-5">
+      <div>
         {isActionable ? (
           <button 
             onClick={() => onAccept(job.id)} 

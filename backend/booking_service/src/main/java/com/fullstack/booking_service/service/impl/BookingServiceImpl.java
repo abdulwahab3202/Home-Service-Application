@@ -172,6 +172,7 @@ public class BookingServiceImpl implements IBookingService {
 
         if (req.getTitle() != null && !req.getTitle().isEmpty()) request.setTitle(req.getTitle());
         if (req.getDescription() != null && !req.getDescription().isEmpty()) request.setDescription(req.getDescription());
+        if (req.getServiceCategory() != null && !req.getServiceCategory().isEmpty()) request.setServiceCategory(req.getServiceCategory());
         if (req.getAddress() != null && !req.getAddress().isEmpty()) request.setAddress(req.getAddress());
         if (req.getDistrict() != null && !req.getDistrict().isEmpty()) request.setDistrict(req.getDistrict());
         if (req.getTaluka() != null && !req.getTaluka().isEmpty()) request.setTaluka(req.getTaluka());

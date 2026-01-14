@@ -4,7 +4,7 @@ import BookingCard from '../components/BookingCard';
 import BookServiceForm from '../components/BookServiceForm';
 import { 
   Plus, Loader2, LayoutDashboard, Clock, CheckCircle, 
-  X, Save, Upload, Map, MapPin 
+  X, Save, Upload, Map, MapPin, Droplets, Zap, Wrench, Hammer 
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import SearchableSelect from '../components/SearchableSelect'; 
@@ -14,16 +14,18 @@ const CustomerDashboard = () => {
   
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [activeTab, setActiveTab] = useState('active'); 
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingBooking, setEditingBooking] = useState(null);
+  const [editingBooking, setEditingBooking] = useState(null);  
   const [editFormData, setEditFormData] = useState({
     title: '',
     description: '',
     address: '',
     district: '',
-    taluka: ''
+    taluka: '',
+    serviceCategory: ''
   });
   const [editImageFile, setEditImageFile] = useState(null);
   const [editPreviewUrl, setEditPreviewUrl] = useState(null);
@@ -72,6 +74,14 @@ const CustomerDashboard = () => {
   const districtList = Object.keys(tamilNaduData).sort();
   const getTalukas = (dist) => tamilNaduData[dist] || [];
 
+  // Categories Array
+  const categories = [
+    { id: 'Plumber', icon: <Droplets size={20} />, label: 'Plumber' },
+    { id: 'Electrician', icon: <Zap size={20} />, label: 'Electrician' },
+    { id: 'Cleaner', icon: <Wrench size={20} />, label: 'Cleaner' },
+    { id: 'Carpenter', icon: <Hammer size={20} />, label: 'Carpenter' },
+  ];
+
   useEffect(() => {
     if (user?.id) {
       fetchCustomerBookings().finally(() => setIsLoading(false));
@@ -79,7 +89,7 @@ const CustomerDashboard = () => {
   }, [user]);
 
   const activeBookings = bookings.filter(b => 
-    ['OPEN', 'ASSIGNED', ].includes(b.status?.toUpperCase())
+    ['OPEN', 'ASSIGNED'].includes(b.status?.toUpperCase())
   );
   const historyBookings = bookings.filter(b => 
     ['COMPLETED', 'CANCELLED', 'REJECTED'].includes(b.status?.toUpperCase())
@@ -101,7 +111,8 @@ const CustomerDashboard = () => {
       description: booking.description || '',
       address: booking.address || '',
       district: booking.district || '',
-      taluka: booking.taluka || ''
+      taluka: booking.taluka || '',
+      serviceCategory: booking.serviceCategory || ''
     });
     setEditPreviewUrl(booking.imageUrl || null);
     setEditImageFile(null);
@@ -150,6 +161,13 @@ const CustomerDashboard = () => {
     e.preventDefault();
     if (!editingBooking) return;
 
+    if(!editFormData.district || !editFormData.taluka) {
+        alert("Please select both District and Taluka");
+        return;
+    }
+
+    setIsUpdating(true);
+
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('title', editFormData.title);
@@ -157,6 +175,7 @@ const CustomerDashboard = () => {
       formDataToSend.append('address', editFormData.address);
       formDataToSend.append('district', editFormData.district);
       formDataToSend.append('taluka', editFormData.taluka);
+      formDataToSend.append('serviceCategory', editFormData.serviceCategory);
       
       if (editImageFile) {
         formDataToSend.append('image', editImageFile);
@@ -169,6 +188,8 @@ const CustomerDashboard = () => {
       }
     } catch (error) {
       console.error("Update failed", error);
+    } finally {
+        setIsUpdating(false);
     }
   };
 
@@ -233,49 +254,60 @@ const CustomerDashboard = () => {
 
       {isEditModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100 dark:border-slate-800 max-h-[90vh] flex flex-col">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
             
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 shrink-0">
-              <h3 className="text-lg font-bold text-slate-800 dark:text-white">Edit Service Request</h3>
-              <button onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-white dark:bg-slate-800 p-1 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 transition-colors">
-                <X size={20} />
-              </button>
+            <div className="bg-indigo-600 dark:bg-indigo-900/50 p-6 flex justify-between items-center shrink-0">
+                <div className="flex items-center gap-3 text-white">
+                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                        <Wrench size={20} />
+                    </div>
+                    <h2 className="text-xl font-bold">Edit Service</h2>
+                </div>
+                <button 
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-full transition-all"
+                >
+                    <X size={20} />
+                </button>
             </div>
 
             <div className="overflow-y-auto p-6 no-scrollbar">
-                <form onSubmit={handleEditSubmit} className="space-y-4">
+                <form onSubmit={handleEditSubmit} className="space-y-6">
                 
                 <div className="space-y-2">
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Update Photo</label>
-                    <div 
-                        onClick={() => fileInputRef.current.click()}
-                        className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer relative overflow-hidden group h-32"
-                    >
-                        {editPreviewUrl ? (
-                            <img src={editPreviewUrl} alt="Preview" className="h-full w-full object-contain rounded-lg" />
-                        ) : (
-                            <div className="flex flex-col items-center">
-                                <Upload size={20} className="mb-2" />
-                                <span className="text-xs">Click to upload new image</span>
-                            </div>
-                        )}
-                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Issue Title</label>
+                    <input type="text" name="title" value={editFormData.title} onChange={handleEditChange} required placeholder="e.g., Leaking Kitchen Sink" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500" />
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Service Category</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {categories.map((cat) => (
+                            <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => setEditFormData({...editFormData, serviceCategory: cat.id})}
+                                className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
+                                    editFormData.serviceCategory === cat.id
+                                    ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+                                    : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:border-indigo-200 dark:hover:border-indigo-800'
+                                }`}
+                            >
+                                {cat.icon}
+                                <span className="text-xs font-bold">{cat.label}</span>
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Issue Title</label>
-                    <input type="text" name="title" value={editFormData.title} onChange={handleEditChange} required className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Description</label>
-                    <textarea name="description" value={editFormData.description} onChange={handleEditChange} required rows="3" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all resize-none bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" />
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
+                    <textarea name="description" value={editFormData.description} onChange={handleEditChange} required rows="3" placeholder="Describe the issue..." className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">District</label>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">District</label>
                         <SearchableSelect 
                             options={districtList}
                             value={editFormData.district}
@@ -284,8 +316,8 @@ const CustomerDashboard = () => {
                             icon={Map}
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Taluka</label>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Taluka</label>
                         <SearchableSelect 
                             options={getTalukas(editFormData.district)}
                             value={editFormData.taluka}
@@ -297,20 +329,59 @@ const CustomerDashboard = () => {
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Address</label>
-                    <input type="text" name="address" value={editFormData.address} onChange={handleEditChange} required className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" />
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <MapPin size={16} className="text-indigo-500" /> Address
+                    </label>
+                    <textarea name="address" value={editFormData.address} onChange={handleEditChange} required rows="2" placeholder="Enter Door No, Street, Area..." className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500" />
                 </div>
 
-                <div className="pt-4 flex gap-3">
-                    <button type="button" onClick={() => setIsEditModalOpen(false)} className="flex-1 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Cancel</button>
-                    <button type="submit" className="flex-1 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 transition-colors flex items-center justify-center gap-2">
-                        <Save size={18} /> Save Changes
-                    </button>
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Update Photo (Optional)</label>
+                    <div 
+                        onClick={() => fileInputRef.current.click()}
+                        className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-6 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all cursor-pointer relative overflow-hidden group h-40"
+                    >
+                        {editPreviewUrl ? (
+                            <div className="relative w-full h-full">
+                                <img src={editPreviewUrl} alt="Preview" className="w-full h-full object-contain rounded-lg" />
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <p className="text-white font-bold text-sm">Click to Change</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="p-3 bg-indigo-50 dark:bg-slate-800 rounded-full mb-3 group-hover:scale-110 transition-transform">
+                                    <Upload size={24} className="text-indigo-500" />
+                                </div>
+                                <p className="text-sm font-medium">Click to upload new image</p>
+                            </>
+                        )}
+                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+                    </div>
                 </div>
 
                 </form>
             </div>
+
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex gap-3 shrink-0">
+                <button 
+                    type="button" 
+                    onClick={() => setIsEditModalOpen(false)} 
+                    disabled={isUpdating}
+                    className="flex-1 py-3.5 rounded-xl font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-70"
+                >
+                    Cancel
+                </button>
+                <button 
+                    onClick={handleEditSubmit} 
+                    disabled={isUpdating}
+                    className="flex-1 py-3.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    {isUpdating ? <Loader2 className="animate-spin" size={20} /> : 'Save Changes'}
+                </button>
+            </div>
+
           </div>
         </div>
       )}
