@@ -21,4 +21,5 @@ public class ServiceRequest {
     private String status;
     private String cancellationReason;
     private Date createdOn;
+    private Date updatedOn;
 }

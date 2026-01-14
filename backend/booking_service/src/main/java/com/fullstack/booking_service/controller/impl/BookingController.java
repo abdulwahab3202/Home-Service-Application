@@ -91,7 +91,7 @@ public class BookingController implements IBookingController {
 
     @Override
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<CommonResponse> updateBooking(String id, UpdateBookingRequest request) {
+    public ResponseEntity<CommonResponse> updateBooking(String id, @ModelAttribute UpdateBookingRequest request) {
         try {
             CommonResponse response = bookingService.updateBooking(id, request);
             return ResponseEntity.status(response.getStatusCode()).body(response);

@@ -6,6 +6,7 @@ import {
   KeyRound, ShieldCheck, CheckCircle2, X, ChevronRight 
 } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
+import { toast } from 'react-toastify';
 import Swal from 'sweetalert2'; 
 
 const Login = ({ theme, toggleTheme }) => {
@@ -73,38 +74,27 @@ const Login = ({ theme, toggleTheme }) => {
   };
 
   const handleVerifyResetOtp = async (e) => {
-    e.preventDefault();
-    if(resetOtp.length < 6) {
-        return; 
-    }
-    const isValid = await verifyResetOtp(resetEmail, resetOtp);
-    
-    if (isValid) {
-        setResetStep(3);
-    }
-  };
+        e.preventDefault();
+        if(resetOtp.length < 6) {
+            return; 
+        }
+        setIsResetLoading(true);
+        const isValid = await verifyResetOtp(resetEmail, resetOtp);
+        setIsResetLoading(false);
+        if (isValid) {
+            setResetStep(3);
+        }
+    };
 
   const handleFinalReset = async (e) => {
     e.preventDefault();
 
     if(newPass.password.length < 8) {
-        return Swal.fire({
-            title: 'Weak Password',
-            text: "Password must be at least 8 characters long.",
-            icon: 'warning',
-            confirmButtonColor: '#4f46e5',
-            scrollbarPadding: false
-        });
+        toast.error("Password must be at least 8 characters long");
     }
 
     if(newPass.password !== newPass.confirm) {
-        return Swal.fire({
-            title: 'Mismatch',
-            text: "Passwords do not match.",
-            icon: 'error',
-            confirmButtonColor: '#4f46e5',
-            scrollbarPadding: false
-        });
+        toast.error("Password do not match");
     }
 
     setIsResetLoading(true);
