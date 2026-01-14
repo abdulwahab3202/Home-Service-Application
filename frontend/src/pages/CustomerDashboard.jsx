@@ -7,6 +7,7 @@ import {
   X, Save, Upload, Map, MapPin, Droplets, Zap, Wrench, Hammer 
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 import SearchableSelect from '../components/SearchableSelect'; 
 
 const CustomerDashboard = () => {
@@ -149,7 +150,7 @@ const CustomerDashboard = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("File size should be less than 5MB");
+        toast.error("File size should be less than 5MB");
         return;
       }
       setEditImageFile(file);
@@ -162,7 +163,7 @@ const CustomerDashboard = () => {
     if (!editingBooking) return;
 
     if(!editFormData.district || !editFormData.taluka) {
-        alert("Please select both District and Taluka");
+        toast.error("Please select both District and Taluka");
         return;
     }
 
