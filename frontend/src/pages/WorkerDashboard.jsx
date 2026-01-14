@@ -78,10 +78,8 @@ const WorkerJobCard = ({ job, activeJob, onAccept, onInitiateComplete, onRevoke,
 
             {showContact && (
                 <div className="flex items-center gap-2 pt-1">
-                    <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded text-green-600 dark:text-green-400">
-                        <Phone size={12} />
-                    </div>
-                    <a href={`tel:${job.customerPhone}`} className="text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-green-600 dark:hover:text-green-400 transition-colors">
+                    <Phone size={12} className="text-indigo-400 dark:text-indigo-500 mt-0.5 shrink-0"/>
+                    <a href={`tel:${job.customerPhone}`} className="text-slate-500 dark:text-slate-400 text-xs font-medium hover:text-green-600 dark:hover:text-green-400 transition-colors">
                         {job.customerPhone || "Phone N/A"}
                     </a>
                 </div>
@@ -288,7 +286,6 @@ const WorkerDashboard = () => {
         </div>
       )}
 
-      {/* Selected Image Modal */}
       {selectedImage && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4" onClick={() => setSelectedImage(null)}>
           <button className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 p-2 rounded-full"><X size={24} /></button>

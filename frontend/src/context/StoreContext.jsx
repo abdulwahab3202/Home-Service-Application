@@ -681,7 +681,7 @@ const StoreContextProvider = (props) => {
     <StoreContext.Provider value={contextValue}>
       <ToastContainer 
         position="top-right" 
-        autoClose={3000} 
+        autoClose={1500} 
         hideProgressBar={true} 
         newestOnTop={true}
         closeOnClick

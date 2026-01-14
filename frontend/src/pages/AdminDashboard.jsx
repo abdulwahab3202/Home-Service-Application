@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StoreContext } from '../context/StoreContext';
 import {
-   Users, Briefcase, Calendar, CheckCircle, Search,
-   Trash2, RefreshCw, Shield, MapPin, Phone, Loader2
+  Users, Briefcase, Calendar, CheckCircle, Search,
+  Trash2, RefreshCw, Shield, Clock, AlertCircle, Loader2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -15,6 +15,10 @@ const AdminDashboard = () => {
    const [activeTab, setActiveTab] = useState('OVERVIEW');
    const [searchTerm, setSearchTerm] = useState('');
    const [filterStatus, setFilterStatus] = useState('ALL');
+
+   // Calculate additional stats
+   const pendingRequests = allBookings ? allBookings.filter(b => b.status === 'OPEN').length : 0;
+   const totalWorkers = workersList ? workersList.length : 0;
 
    useEffect(() => {
       if (token) fetchAdminDashboardData();
@@ -40,6 +44,7 @@ const AdminDashboard = () => {
       }
    };
 
+   // Filtering Logic
    const filteredBookings = (allBookings || []).filter(booking => {
       const matchesStatus = filterStatus === 'ALL' || booking.status === filterStatus;
       const matchesSearch =
@@ -51,15 +56,16 @@ const AdminDashboard = () => {
    const filteredCustomers = (customersList || []).filter(c =>
       c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.city?.toLowerCase().includes(searchTerm.toLowerCase())
+      (c.district || "").toLowerCase().includes(searchTerm.toLowerCase())
    );
 
    const filteredWorkers = (workersList || []).filter(w =>
       w.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      w.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      w.department?.toLowerCase().includes(searchTerm.toLowerCase())
+      (w.department || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (w.district || "").toLowerCase().includes(searchTerm.toLowerCase())
    );
 
+   // Reusable Components
    const StatCard = ({ title, value, icon: Icon, bgClass, iconClass, darkBgClass, darkIconClass }) => (
       <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:-translate-y-1 transition-all duration-300">
          <div className={`p-3 rounded-full ${bgClass} ${iconClass} ${darkBgClass} ${darkIconClass}`}>
@@ -110,26 +116,32 @@ const AdminDashboard = () => {
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
          <div className="max-w-7xl mx-auto">
 
-            <div className="flex justify-between items-end mb-8">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
                <div>
                   <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white transition-colors duration-300">Admin Dashboard</h1>
                   <p className="text-slate-500 dark:text-slate-400 mt-1 transition-colors duration-300">Platform overview and management.</p>
                </div>
                <button
                   onClick={fetchAdminDashboardData}
-                  className="flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
+                  className="flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors bg-white dark:bg-slate-800 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
                >
-                  <RefreshCw size={16} /> Refresh
+                  <RefreshCw size={16} /> Refresh Data
                </button>
             </div>
-            <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8 bg-white dark:bg-slate-900 rounded-t-xl overflow-hidden shadow-sm transition-colors duration-300 overflow-x-auto">
+            
+            {/* Tabs */}
+            <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8 bg-white dark:bg-slate-900 rounded-t-xl overflow-hidden shadow-sm transition-colors duration-300 overflow-x-auto scrollbar-hide">
                <TabButton id="OVERVIEW" label="Overview" icon={Shield} />
                <TabButton id="CUSTOMERS" label="Customers" icon={Users} />
                <TabButton id="WORKERS" label="Workers" icon={Briefcase} />
             </div>
+
+            {/* --- OVERVIEW TAB --- */}
             {activeTab === 'OVERVIEW' && (
                <div className="space-y-8 animate-in fade-in">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Stats Grid - Responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                      <StatCard
                         title="Total Customers"
                         value={adminStats.totalUsers || 0}
@@ -138,16 +150,16 @@ const AdminDashboard = () => {
                         darkBgClass="dark:bg-blue-900/20" darkIconClass="dark:text-blue-400"
                      />
                      <StatCard
-                        title="Active Workers"
-                        value={adminStats.activeWorkers || 0}
+                        title="Total Workers"
+                        value={totalWorkers}
                         icon={Briefcase}
                         bgClass="bg-indigo-50" iconClass="text-indigo-600"
                         darkBgClass="dark:bg-indigo-900/20" darkIconClass="dark:text-indigo-400"
                      />
                      <StatCard
-                        title="Total Requests"
-                        value={adminStats.totalBookings || 0}
-                        icon={Calendar}
+                        title="Pending Requests"
+                        value={pendingRequests}
+                        icon={AlertCircle}
                         bgClass="bg-orange-50" iconClass="text-orange-600"
                         darkBgClass="dark:bg-orange-900/20" darkIconClass="dark:text-orange-400"
                      />
@@ -159,14 +171,16 @@ const AdminDashboard = () => {
                         darkBgClass="dark:bg-green-900/20" darkIconClass="dark:text-green-400"
                      />
                   </div>
+
+                  {/* Recent Bookings Table */}
                   <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
-                     <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                        <h3 className="font-bold text-slate-800 dark:text-white">Service Requests</h3>
-                        <div className="flex gap-2">
+                     <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 className="font-bold text-slate-800 dark:text-white">Recent Requests</h3>
+                        <div className="flex gap-2 w-full sm:w-auto">
                            <select
                               value={filterStatus}
                               onChange={(e) => setFilterStatus(e.target.value)}
-                              className="text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded px-2 py-1 outline-none focus:border-indigo-500"
+                              className="text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 w-full sm:w-auto cursor-pointer"
                            >
                               <option value="ALL">All Status</option>
                               <option value="OPEN">Open</option>
@@ -176,7 +190,7 @@ const AdminDashboard = () => {
                         </div>
                      </div>
                      <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left whitespace-nowrap">
                            <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
                               <tr>
                                  <th className="px-6 py-4">ID</th>
@@ -188,11 +202,11 @@ const AdminDashboard = () => {
                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                               {filteredBookings.length > 0 ? filteredBookings.map(b => (
                                  <tr key={b.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                    <td className="px-6 py-4 text-xs font-mono text-slate-500 dark:text-slate-400">#{b.id.substring(0, 6)}...</td>
+                                    <td className="px-6 py-4 text-xs font-mono text-slate-500 dark:text-slate-400">#{b.id.substring(0, 6)}</td>
                                     <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{b.title}</td>
                                     <td className="px-6 py-4"><StatusBadge status={b.status} /></td>
                                     <td className="px-6 py-4 text-right">
-                                       <button onClick={() => handleDelete(b.id, 'BOOKING')} className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"><Trash2 size={18} /></button>
+                                       <button onClick={() => handleDelete(b.id, 'BOOKING')} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
                                     </td>
                                  </tr>
                               )) : <tr><td colSpan="4" className="text-center py-8 text-slate-400 dark:text-slate-500">No bookings found.</td></tr>}
@@ -203,18 +217,19 @@ const AdminDashboard = () => {
                </div>
             )}
 
+            {/* --- CUSTOMERS TAB --- */}
             {activeTab === 'CUSTOMERS' && (
                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in transition-colors duration-300">
-                  <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                  <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
                      <h3 className="font-bold text-slate-800 dark:text-white">Customer List</h3>
-                     <div className="relative">
+                     <div className="relative w-full sm:w-auto">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                            type="text"
-                           placeholder="Search customers..."
+                           placeholder="Search..."
                            value={searchTerm}
                            onChange={(e) => setSearchTerm(e.target.value)}
-                           className="pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg text-sm w-32 sm:w-auto outline-none focus:border-indigo-500 transition-colors"
+                           className="w-full sm:w-64 pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg text-sm outline-none focus:border-indigo-500 transition-colors"
                         />
                      </div>
                   </div>
@@ -225,7 +240,8 @@ const AdminDashboard = () => {
                            <tr>
                               <th className="px-6 py-4">Identity</th>
                               <th className="px-6 py-4">Contact</th>
-                              <th className="px-6 py-4">Location</th>
+                              <th className="px-6 py-4">District</th>
+                              <th className="px-6 py-4">Taluka</th>
                               <th className="px-6 py-4 text-right">Manage</th>
                            </tr>
                         </thead>
@@ -236,39 +252,39 @@ const AdminDashboard = () => {
                                     <div className="font-bold text-slate-800 dark:text-white">{user.name}</div>
                                     <div className="text-xs text-slate-500 dark:text-slate-400">{user.email}</div>
                                  </td>
-                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                                       <Phone size={14} className="text-indigo-400 dark:text-indigo-500" /> {user.phoneNumber || "N/A"}
-                                    </div>
+                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                    {user.phoneNumber || "N/A"}
                                  </td>
-                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                                       <MapPin size={14} className="text-indigo-400 dark:text-indigo-500" /> {user.city || "N/A"}
-                                    </div>
+                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                    {user.district || "N/A"}
+                                 </td>
+                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                    {user.taluka || "N/A"}
                                  </td>
                                  <td className="px-6 py-4 text-right">
                                     <button onClick={() => handleDelete(user.userId || user.id, 'CUSTOMER')} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
                                  </td>
                               </tr>
-                           )) : <tr><td colSpan="4" className="text-center py-8 text-slate-400 dark:text-slate-500">No customers found.</td></tr>}
+                           )) : <tr><td colSpan="5" className="text-center py-8 text-slate-400 dark:text-slate-500">No customers found.</td></tr>}
                         </tbody>
                      </table>
                   </div>
                </div>
             )}
 
+            {/* --- WORKERS TAB --- */}
             {activeTab === 'WORKERS' && (
                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in transition-colors duration-300">
-                  <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                  <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
                      <h3 className="font-bold text-slate-800 dark:text-white">Worker List</h3>
-                     <div className="relative">
+                     <div className="relative w-full sm:w-auto">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                            type="text"
-                           placeholder="Search workers..."
+                           placeholder="Search..."
                            value={searchTerm}
                            onChange={(e) => setSearchTerm(e.target.value)}
-                           className="pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg text-sm w-32 sm:w-auto outline-none focus:border-indigo-500 transition-colors"
+                           className="w-full sm:w-64 pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg text-sm outline-none focus:border-indigo-500 transition-colors"
                         />
                      </div>
                   </div>
@@ -279,7 +295,9 @@ const AdminDashboard = () => {
                            <tr>
                               <th className="px-6 py-4">Identity</th>
                               <th className="px-6 py-4">Department</th>
-                              <th className="px-6 py-4">Phone Number</th>
+                              <th className="px-6 py-4">Phone</th>
+                              <th className="px-6 py-4">District</th>
+                              <th className="px-6 py-4">Taluka</th>
                               <th className="px-6 py-4 text-right">Manage</th>
                            </tr>
                         </thead>
@@ -290,21 +308,23 @@ const AdminDashboard = () => {
                                     <div className="font-bold text-slate-800 dark:text-white">{w.name}</div>
                                     <div className="text-xs text-slate-500 dark:text-slate-400">{w.email}</div>
                                  </td>
-                                 <td className="px-6 py-4">
-                                    <span className="text-sm text-slate-600 dark:text-slate-300">
-                                       {w.department}
-                                    </span>
+                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                    {w.department}
                                  </td>
-                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                                       <Phone size={14} className="text-indigo-400 dark:text-indigo-500" /> {w.phoneNumber || "N/A"}
-                                    </div>
+                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                    {w.phoneNumber || "N/A"}
+                                 </td>
+                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                    {w.district || "N/A"}
+                                 </td>
+                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                    {w.taluka || "N/A"}
                                  </td>
                                  <td className="px-6 py-4 text-right">
                                     <button onClick={() => handleDelete(w.workerId || w.id, 'WORKER')} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
                                  </td>
                               </tr>
-                           )) : <tr><td colSpan="4" className="text-center py-8 text-slate-400 dark:text-slate-500">No workers found.</td></tr>}
+                           )) : <tr><td colSpan="6" className="text-center py-8 text-slate-400 dark:text-slate-500">No workers found.</td></tr>}
                         </tbody>
                      </table>
                   </div>
