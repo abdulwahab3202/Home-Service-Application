@@ -139,25 +139,25 @@ const Profile = () => {
 
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden mb-8 transition-colors duration-300">
           <div className="bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-900 dark:to-blue-900 h-32 relative">
-            <div className="absolute -bottom-12 left-8 p-1 bg-white dark:bg-slate-900 rounded-full transition-colors duration-300">
-              <div className="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-2xl font-bold text-indigo-600 dark:text-indigo-400 border-4 border-white dark:border-slate-900 shadow-sm transition-colors duration-300">
+            <div className="absolute -bottom-12 left-4 sm:left-8 p-1 bg-white dark:bg-slate-900 rounded-full transition-colors duration-300">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-2xl font-bold text-indigo-600 dark:text-indigo-400 border-4 border-white dark:border-slate-900 shadow-sm transition-colors duration-300">
                 {userInitials}
               </div>
             </div>
           </div>
           
-          <div className="pt-16 pb-8 px-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="pt-16 pb-8 px-4 sm:px-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white transition-colors duration-300">{user?.name}</h1>
-              <div className="flex items-center gap-2 mt-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white transition-colors duration-300">{user?.name}</h1>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${role === 'WORKER' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'}`}>
                   {role}
                 </span>
                 {role === 'WORKER' && user?.department && (
-                  <span className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">• {user.department}</span>
+                  <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">• {user.department}</span>
                 )}
                 {(user?.district || user?.taluka) && (
-                    <span className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                    <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
                         • <MapPin size={12}/> {user.taluka ? `${user.taluka}, ` : ''}{user.district}
                     </span>
                 )}
@@ -165,8 +165,8 @@ const Profile = () => {
             </div>
 
             {role === 'WORKER' && (
-              <div className="flex gap-4">
-                <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-100 dark:border-slate-700 text-center transition-colors duration-300">
+              <div className="flex gap-4 w-full md:w-auto">
+                <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-100 dark:border-slate-700 text-center transition-colors duration-300 w-full md:w-auto">
                   <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Completed</p>
                   <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 justify-center">
                     <CheckCircle size={18} /> {completedJobsCount}
@@ -176,12 +176,12 @@ const Profile = () => {
             )}
           </div>
 
-          <div className="flex border-t border-slate-100 dark:border-slate-800 px-8">
-            <button onClick={() => setActiveTab('details')} className={`py-4 mr-8 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'details' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}>
+          <div className="flex border-t border-slate-100 dark:border-slate-800 px-4 sm:px-8 overflow-x-auto scrollbar-hide">
+            <button onClick={() => setActiveTab('details')} className={`py-4 mr-8 text-sm font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'details' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}>
               <User size={18} /> Personal Details
             </button>
             {role !== 'ADMIN' && (
-              <button onClick={() => setActiveTab('history')} className={`py-4 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'history' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}>
+              <button onClick={() => setActiveTab('history')} className={`py-4 text-sm font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'history' ? 'border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}>
               <Clock size={18} /> {role === 'WORKER' ? 'Work History' : 'Service History'}
             </button>
             )}
@@ -189,33 +189,33 @@ const Profile = () => {
         </div>
 
         {activeTab === 'details' && (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-8 transition-colors duration-300">
-            <div className="flex justify-between items-center mb-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 transition-colors duration-300 animate-in fade-in">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">Contact Information</h2>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                   {isLocalProvider && !isEditing && (
                     <button 
                         onClick={() => setIsPasswordModalOpen(true)}
-                        className="text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+                        className="flex-1 sm:flex-none justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2"
                     >
-                        <Lock size={16} /> Change Password
+                        <Lock size={14} /> Change Password
                     </button>
                   )}
 
                   {!isEditing ? (
-                    <button onClick={() => setIsEditing(true)} className="text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-2">
-                    <Edit2 size={16} /> Edit
+                    <button onClick={() => setIsEditing(true)} className="flex-1 sm:flex-none justify-center text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors flex items-center gap-2">
+                    <Edit2 size={14} /> Edit
                     </button>
                   ) : (
-                    <div className="flex gap-2">
-                    <button onClick={() => setIsEditing(false)} className="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors">Cancel</button>
-                    <button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"><Save size={16} /> Save Changes</button>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                    <button onClick={() => setIsEditing(false)} className="flex-1 sm:flex-none text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors">Cancel</button>
+                    <button onClick={handleSave} className="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-2"><Save size={14} /> Save</button>
                     </div>
                   )}
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Full Name</label>
                 {isEditing ? <input name="name" value={formData.name} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" /> 
@@ -224,7 +224,7 @@ const Profile = () => {
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Email Address</label>
-                <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl opacity-75 cursor-not-allowed border border-transparent dark:border-slate-700"><Mail size={18} className="text-slate-400 dark:text-slate-500"/> {user?.email}</div>
+                <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl opacity-75 cursor-not-allowed border border-transparent dark:border-slate-700 overflow-hidden text-ellipsis"><Mail size={18} className="text-slate-400 dark:text-slate-500 shrink-0"/> <span className="truncate">{user?.email}</span></div>
               </div>
 
               {role !== 'ADMIN' && (
@@ -289,10 +289,10 @@ const Profile = () => {
 
               {role === 'CUSTOMER' && (
                 <>
-                  <div className="space-y-2">
+                  <div className="space-y-2 md:col-span-2">
                     <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Address</label>
                     {isEditing ? <input name="address" value={formData.address} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" /> 
-                    : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><MapPin size={18} className="text-slate-400 dark:text-slate-500"/> {user?.address || "Not provided"}</div>}
+                    : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><MapPin size={18} className="text-slate-400 dark:text-slate-500 shrink-0"/> {user?.address || "Not provided"}</div>}
                   </div>
                 </>
               )}
@@ -301,7 +301,7 @@ const Profile = () => {
         )}
 
         {activeTab === 'history' && (
-          <div className="space-y-4 min-h-[200px]">
+          <div className="space-y-4 min-h-[200px] animate-in fade-in">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <Loader2 className="animate-spin text-indigo-600 dark:text-indigo-400 mb-3" size={40} />

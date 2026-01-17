@@ -694,7 +694,7 @@ const StoreContextProvider = (props) => {
         icon={({ type }) => getIcon(type)} 
         toastClassName={(context) => 
             toastStyles[context?.type || "default"] + 
-            " relative flex p-4 min-h-16 rounded-xl justify-between overflow-hidden cursor-pointer shadow-xl backdrop-blur-md mb-4 items-center gap-3 transition-all duration-300 transform hover:scale-[1.02]"
+            " relative flex p-4 min-h-16 rounded-xl justify-between overflow-hidden cursor-pointer shadow-xl backdrop-blur-md items-center gap-3 transition-all duration-300 transform hover:scale-[1.02] mt-5 m-4"
         }
         bodyClassName={() => "text-sm font-bold flex-grow"} 
         transition={Zoom}
