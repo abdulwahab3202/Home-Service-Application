@@ -251,6 +251,8 @@ public class BookingServiceImpl implements IBookingService {
         res.setServiceCategory(req.getServiceCategory());
         res.setAddress(req.getAddress());
         res.setStatus(req.getStatus());
+        res.setDistrict(req.getDistrict());
+        res.setTaluka(req.getTaluka());
         res.setCancellationReason(req.getCancellationReason());
         res.setCreatedOn(req.getCreatedOn());
         res.setUpdatedOn(req.getUpdatedOn());
