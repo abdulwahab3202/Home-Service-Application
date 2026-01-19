@@ -132,7 +132,7 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] w-full max-w-lg transition-colors duration-300">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] w-full max-w-lg mx-4 transition-colors duration-300">
       
       <div className="bg-indigo-600 dark:bg-indigo-900/50 p-6 flex justify-between items-center shrink-0">
         <div className="flex items-center gap-3 text-white">
@@ -193,7 +193,7 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* --- 3. District Dropdown (Using SearchableSelect) --- */}
              <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">District</label>
