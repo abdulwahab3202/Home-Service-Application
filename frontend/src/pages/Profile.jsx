@@ -232,7 +232,7 @@ const Profile = () => {
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Phone Number</label>
                   {isEditing ? <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
-                    : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><Phone size={18} className="text-slate-400 dark:text-slate-500" /> {user?.phoneNumber || user?.phone || "Not provided"}</div>}
+                    : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><Phone size={18} className="text-slate-400 dark:text-slate-500" />+91 {user?.phoneNumber || user?.phone || "Not provided"}</div>}
                 </div>
               )}
 
