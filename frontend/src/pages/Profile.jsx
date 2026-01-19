@@ -3,7 +3,7 @@ import { StoreContext } from '../context/StoreContext';
 import { 
   User, Mail, Phone, MapPin, Edit2, Save, 
   CheckCircle, Clock, Briefcase, 
-  Map, Loader2, Lock, X, KeyRound, ShieldCheck
+  Map, Loader2, Lock, X, KeyRound, ShieldCheck, Hash
 } from 'lucide-react';
 import SearchableSelect from '../components/SearchableSelect'; 
 
@@ -137,6 +137,7 @@ const Profile = () => {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 transition-colors duration-500 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
+        {/* Header Profile Card */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden mb-8 transition-colors duration-300">
           <div className="bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-900 dark:to-blue-900 h-32 relative">
             <div className="absolute -bottom-12 left-4 sm:left-8 p-1 bg-white dark:bg-slate-900 rounded-full transition-colors duration-300">
@@ -235,6 +236,7 @@ const Profile = () => {
                 </div>
               )}
 
+              {/* District & Taluka */}
               {role !== 'ADMIN' && (
                   <>
                     <div className="space-y-2">
@@ -289,10 +291,16 @@ const Profile = () => {
 
               {role === 'CUSTOMER' && (
                 <>
-                  <div className="space-y-2 md:col-span-2">
+                  <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Address</label>
                     {isEditing ? <input name="address" value={formData.address} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" /> 
                     : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><MapPin size={18} className="text-slate-400 dark:text-slate-500 shrink-0"/> {user?.address || "Not provided"}</div>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Pincode</label>
+                    {isEditing ? <input name="pincode" value={formData.pincode} onChange={handleInputChange} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" /> 
+                    : <div className="flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-transparent dark:border-slate-700"><Hash size={18} className="text-slate-400 dark:text-slate-500 shrink-0"/> {user?.pinCode || user?.pincode || "Not provided"}</div>}
                   </div>
                 </>
               )}
@@ -300,6 +308,7 @@ const Profile = () => {
           </div>
         )}
 
+        {/* History Tab */}
         {activeTab === 'history' && (
           <div className="space-y-4 min-h-[200px] animate-in fade-in">
             {isLoading ? (
@@ -355,6 +364,7 @@ const Profile = () => {
           </div>
         )}
 
+        {/* Password Modal */}
         {isPasswordModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
                 <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-800 overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
