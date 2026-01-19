@@ -12,8 +12,8 @@ public class BookingResponse {
     private String description;
     private String serviceCategory;
     private String address;
-    private Double latitude;
-    private Double longitude;
+    private String district;
+    private String taluka;
     private String status;
     private String cancellationReason;
     private Date createdOn;

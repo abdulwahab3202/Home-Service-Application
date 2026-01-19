@@ -19,7 +19,8 @@ const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState('active'); 
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingBooking, setEditingBooking] = useState(null);  
+  const [editingBooking, setEditingBooking] = useState(null);
+  
   const [editFormData, setEditFormData] = useState({
     title: '',
     description: '',
@@ -75,7 +76,6 @@ const CustomerDashboard = () => {
   const districtList = Object.keys(tamilNaduData).sort();
   const getTalukas = (dist) => tamilNaduData[dist] || [];
 
-  // Categories Array
   const categories = [
     { id: 'Plumber', icon: <Droplets size={20} />, label: 'Plumber' },
     { id: 'Electrician', icon: <Zap size={20} />, label: 'Electrician' },
@@ -90,7 +90,7 @@ const CustomerDashboard = () => {
   }, [user]);
 
   const activeBookings = bookings.filter(b => 
-    ['OPEN', 'ASSIGNED'].includes(b.status?.toUpperCase())
+    ['OPEN', 'ASSIGNED', 'IN_PROGRESS'].includes(b.status?.toUpperCase())
   );
   const historyBookings = bookings.filter(b => 
     ['COMPLETED', 'CANCELLED', 'REJECTED'].includes(b.status?.toUpperCase())
@@ -211,13 +211,13 @@ const CustomerDashboard = () => {
           </button>
         </div>
 
-        <div className="flex space-x-1 bg-white dark:bg-slate-900 p-1 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 mb-8 w-fit transition-colors duration-300">
-          <button onClick={() => setActiveTab('active')} className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'active' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+        <div className="flex space-x-1 bg-white dark:bg-slate-900 p-1 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 mb-8 w-fit transition-colors duration-300 overflow-x-auto scrollbar-hide">
+          <button onClick={() => setActiveTab('active')} className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'active' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
             <Clock size={16} /> Active Requests
             {activeBookings.length > 0 && <span className="ml-1 bg-indigo-200 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200 text-[10px] px-2 py-0.5 rounded-full">{activeBookings.length}</span>}
           </button>
           
-          <button onClick={() => setActiveTab('history')} className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'history' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+          <button onClick={() => setActiveTab('history')} className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'history' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
             <CheckCircle size={16} /> History
           </button>
         </div>
@@ -247,7 +247,7 @@ const CustomerDashboard = () => {
 
       {showForm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg relative">
+          <div className="w-full max-w-lg relative mx-4">
             <BookServiceForm onCancel={() => setShowForm(false)} onSuccess={handleBookingSuccess} />
           </div>
         </div>
@@ -255,7 +255,7 @@ const CustomerDashboard = () => {
 
       {isEditModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg mx-4 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
             
             <div className="bg-indigo-600 dark:bg-indigo-900/50 p-6 flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-3 text-white">
@@ -306,7 +306,7 @@ const CustomerDashboard = () => {
                     <textarea name="description" value={editFormData.description} onChange={handleEditChange} required rows="3" placeholder="Describe the issue..." className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">District</label>
                         <SearchableSelect 
