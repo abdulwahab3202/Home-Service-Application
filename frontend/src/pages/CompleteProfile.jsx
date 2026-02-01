@@ -80,10 +80,6 @@ const CompleteProfile = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // 1. Name: Alphabets only
-    if (name === 'name') {
-        if (value && !/^[A-Za-z\s]+$/.test(value)) return;
-    }
 
     // 3 & 4. Phone & Pincode: Numbers only
     if (name === 'phone' || name === 'pincode') {
@@ -99,11 +95,6 @@ const CompleteProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAdmin) {
-        
-        // 1. Name Validation
-        if (!/^[A-Za-z\s]+$/.test(formData.name)) {
-            return toast.error("Name must contain only alphabets.");
-        }
 
         // 3. Phone Validation (Now checked for BOTH Customer and Worker)
         if (formData.phone.length !== 10) {
