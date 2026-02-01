@@ -16,7 +16,7 @@ const CompleteProfile = () => {
 
   const [formData, setFormData] = useState({
     name: location.state?.name || '', email: location.state?.email || '',
-    phone: '', address: '', pincode: '', // Removed city
+    phone: '', address: '', pincode: '',
     district: '', taluka: '', department: 'Plumber', 
     role: 'CUSTOMER', password: '' 
   });
@@ -70,15 +70,49 @@ const CompleteProfile = () => {
     if (!location.state?.email) { toast.error("Unauthorized"); navigate('/login'); }
   }, [location.state, navigate]);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'name') {
+        if (value && !/^[A-Za-z\s]+$/.test(value)) return;
+    }
+
+    if (name === 'phone' || name === 'pincode') {
+        if (value && !/^\d*$/.test(value)) return;
+    }
+
+    if (name === 'address' && value.length > 100) {
+        return; 
+    }
+
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAdmin) {
-        if (!formData.phone) return toast.error("Phone number is required");
+        
+        if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+            return toast.error("Name must contain only alphabets.");
+        }
+
+        if (formData.phone.length !== 10) {
+            return toast.error("Phone number must be exactly 10 digits.");
+        }
+
         if (!formData.district) return toast.error("District is required");
         if (!formData.taluka && getTalukas(formData.district).length > 0) return toast.error("Taluka is required");
-        if (formData.role === 'CUSTOMER' && (!formData.address || !formData.pincode)) return toast.error("Address details required");
+        
+        if (formData.role === 'CUSTOMER') {
+            if (!formData.address) return toast.error("Address is required");
+            if (formData.pincode.length !== 6) {
+                return toast.error("Pincode must be exactly 6 digits.");
+            }
+        }
+    }
+
+    if (formData.password && formData.password.length < 8) {
+        return toast.error("Password must be at least 8 characters.");
     }
 
     const submissionData = {
@@ -119,8 +153,7 @@ const CompleteProfile = () => {
                 <div className="space-y-4">
                     <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={18} />
-                        <input type="text" name="name" value={formData.name} readOnly className={`${inputBaseClass} ${readOnlyClass}`} />
-                        <Lock className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600" size={14} />
+                        <input type="text" name="name" value={formData.name} onChange={handleChange} className={`${inputBaseClass}`} placeholder="Full Name" required/>
                     </div>
                     <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={18} />
@@ -143,15 +176,27 @@ const CompleteProfile = () => {
 
                 {!isAdmin && (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-                        <div>
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Phone Number <span className="text-red-500">*</span></label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
-                                <input type="text" name="phone" placeholder="98765 43210" onChange={handleChange} className={inputBaseClass} required />
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Phone Number <span className="text-red-500">*</span></label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
+                                    <input type="text" name="phone" placeholder="9876543210" value={formData.phone} onChange={handleChange} className={inputBaseClass} required maxLength={10} />
+                                </div>
                             </div>
+                            
+                            {formData.role === 'CUSTOMER' && (
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Pincode <span className="text-red-500">*</span></label>
+                                    <div className="relative">
+                                        <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
+                                        <input type="text" name="pincode" placeholder="600001" value={formData.pincode} onChange={handleChange} className={inputBaseClass} required maxLength={6} />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Searchable District & Taluka */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">District <span className="text-red-500">*</span></label>
@@ -191,22 +236,14 @@ const CompleteProfile = () => {
                             </div>
                         )}
                         {formData.role === 'CUSTOMER' && (
-                            <>
-                                <div>
-                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Address <span className="text-red-500">*</span></label>
-                                    <div className="relative">
-                                        <MapPin className="absolute left-3 top-3 text-indigo-500" size={18} />
-                                        <textarea name="address" placeholder="House No, Street Area..." onChange={handleChange} rows="2" className={`${inputBaseClass} pl-10 resize-none`} required />
-                                    </div>
-                                </div>
+                            <div>
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Address <span className="text-red-500">*</span></label>
                                 <div className="relative">
-                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Pincode <span className="text-red-500">*</span></label>
-                                    <div className="relative">
-                                        <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
-                                        <input type="text" name="pincode" placeholder="600001" onChange={handleChange} className={inputBaseClass} required />
-                                    </div>
+                                    <MapPin className="absolute left-3 top-3 text-indigo-500" size={18} />
+                                    <textarea name="address" placeholder="House No, Street Area..." value={formData.address} onChange={handleChange} rows="2" className={`${inputBaseClass} pl-10 resize-none`} required />
                                 </div>
-                            </>
+                                <p className="text-xs text-slate-400 text-right mt-1">{formData.address.length}/100 characters</p>
+                            </div>
                         )}
                     </div>
                 )}

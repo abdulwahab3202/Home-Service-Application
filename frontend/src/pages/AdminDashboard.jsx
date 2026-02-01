@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 const AdminDashboard = () => {
    const {
       token, adminStats, fetchAdminDashboardData, allBookings, deleteBooking,
-      customersList, workersList, deleteUser, deleteWorker
+      customersList, workersList, deleteUser,
    } = useContext(StoreContext);
 
    const [activeTab, setActiveTab] = useState('OVERVIEW');
@@ -40,7 +40,7 @@ const AdminDashboard = () => {
       if (result.isConfirmed) {
          if (type === 'BOOKING') await deleteBooking(id);
          if (type === 'CUSTOMER') await deleteUser(id);
-         if (type === 'WORKER') await deleteWorker(id);
+         if (type === 'WORKER') await deleteUser(id);
       }
    };
 
@@ -321,7 +321,7 @@ const AdminDashboard = () => {
                                     {w.taluka || "N/A"}
                                  </td>
                                  <td className="px-6 py-4 text-right">
-                                    <button onClick={() => handleDelete(w.workerId || w.id, 'WORKER')} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                                    <button onClick={() => handleDelete(w.userId, 'WORKER')} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
                                  </td>
                               </tr>
                            )) : <tr><td colSpan="6" className="text-center py-8 text-slate-400 dark:text-slate-500">No workers found.</td></tr>}

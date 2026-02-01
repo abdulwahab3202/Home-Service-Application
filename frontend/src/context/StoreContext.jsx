@@ -464,7 +464,7 @@ const StoreContextProvider = (props) => {
   const deleteWorker = async (workerId) => {
     setIsLoading(true);
     try {
-      await axios.delete(`${WORKER_URL}/delete/${workerId}`, {
+      await axios.delete(`${WORKER_URL}/worker/delete/${workerId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       toast.success("Worker removed successfully.");
