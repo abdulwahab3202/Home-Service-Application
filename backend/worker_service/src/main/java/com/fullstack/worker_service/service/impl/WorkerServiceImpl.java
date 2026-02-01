@@ -45,6 +45,7 @@ public class WorkerServiceImpl implements IWorkerService {
         CommonResponse response = new CommonResponse();
         Worker worker = new Worker();
         worker.setWorkerId(workerRequest.getUserId());
+        worker.setUserId(worker.getUserId());
         worker.setName(workerRequest.getName());
         worker.setEmail(workerRequest.getEmail());
         worker.setPhoneNumber(workerRequest.getPhoneNumber());
