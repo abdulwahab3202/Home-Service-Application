@@ -586,18 +586,24 @@ public class UserServiceImpl implements IUserService {
 
     private CustomerResponse toCustomerDTO(Customer customer){
         CustomerResponse res = new CustomerResponse();
-        User user = userRepository.getUserById(customer.getUserId());
         res.setUserId(customer.getId());
-        res.setName(user.getName());
-        res.setEmail(user.getEmail());
-        res.setRole(user.getRole().name());
         res.setPhoneNumber(customer.getPhoneNumber());
         res.setDistrict(customer.getDistrict());
         res.setTaluka(customer.getTaluka());
         res.setAddress(customer.getAddress());
         res.setPinCode(customer.getPinCode());
-        res.setCreatedOn(user.getCreatedOn());
-        res.setUpdateOn(user.getUpdatedOn());
+        User user = userRepository.getUserById(customer.getUserId());
+        if (user != null) {
+            res.setName(user.getName());
+            res.setEmail(user.getEmail());
+            res.setRole(user.getRole().name());
+            res.setCreatedOn(user.getCreatedOn());
+            res.setUpdateOn(user.getUpdatedOn());
+        } else {
+            res.setName("Unknown User");
+            res.setEmail("N/A");
+            res.setRole("CUSTOMER");
+        }
         return res;
     }
 }
