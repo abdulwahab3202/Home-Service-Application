@@ -7,6 +7,7 @@ import java.util.List;
 @Data
 public class WorkerResponse {
     private String workerId;
+    private String userId;
     private String name;
     private String email;
     private String phoneNumber;

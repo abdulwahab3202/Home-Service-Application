@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.util.Date;
 
 @Data
@@ -14,6 +16,8 @@ import java.util.Date;
 public class Worker {
     @Id
     private String workerId;
+    @Field("user_id")
+    private String userId;
     private String name;
     private String email;
     private String phoneNumber;
