@@ -32,11 +32,19 @@ const Login = ({ theme, toggleTheme }) => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    const result = await googleLogin(credentialResponse.credential);
-    if (result?.success) {
-        if (result.role === 'WORKER') navigate('/worker-dashboard');
-        else if (result.role === 'ADMIN') navigate('/admin-dashboard');
-        else navigate('/book-service');
+    try {
+        const result = await googleLogin(credentialResponse.credential);
+        
+        if (result?.success) {
+            if (result.role === 'WORKER') navigate('/worker-dashboard');
+            else if (result.role === 'ADMIN') navigate('/admin-dashboard');
+            else navigate('/book-service');
+        } 
+        else if (result?.isNewUser) {
+            navigate('/complete-profile', { state: result.data });
+        }
+    } catch (error) {
+        console.error("Google Auth Failed in Component", error);
     }
   };
 
