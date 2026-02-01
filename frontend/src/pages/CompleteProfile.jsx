@@ -4,7 +4,7 @@ import { StoreContext } from '../context/StoreContext';
 import { toast } from 'react-toastify';
 import { 
   User, Mail, Phone, MapPin, Hash, Lock, ArrowRight, 
-  CheckCircle2, Briefcase, Wrench, Map 
+  CheckCircle2, Briefcase, Wrench, Map, Zap, Droplets, Hammer 
 } from 'lucide-react';
 import SearchableSelect from '../components/SearchableSelect'; 
 
@@ -20,6 +20,13 @@ const CompleteProfile = () => {
     district: '', taluka: '', department: 'Plumber', 
     role: 'CUSTOMER', password: '' 
   });
+
+  const departments = [
+    { id: 'Plumber', icon: <Droplets size={20} />, label: 'Plumber' },
+    { id: 'Electrician', icon: <Zap size={20} />, label: 'Electrician' },
+    { id: 'Cleaner', icon: <Wrench size={20} />, label: 'Cleaner' },
+    { id: 'Carpenter', icon: <Hammer size={20} />, label: 'Carpenter' },
+  ];
 
   const tamilNaduData = {
     "Ariyalur": ["Andimadam", "Ariyalur", "Sendurai", "Udayarpalayam"],
@@ -73,17 +80,18 @@ const CompleteProfile = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    // 1. Name: Alphabets only
     if (name === 'name') {
         if (value && !/^[A-Za-z\s]+$/.test(value)) return;
     }
 
+    // 3 & 4. Phone & Pincode: Numbers only
     if (name === 'phone' || name === 'pincode') {
         if (value && !/^\d*$/.test(value)) return;
     }
 
-    if (name === 'address' && value.length > 100) {
-        return; 
-    }
+    // 5. Address: Max 100 chars
+    if (name === 'address' && value.length > 100) return;
 
     setFormData({ ...formData, [name]: value });
   };
@@ -92,10 +100,12 @@ const CompleteProfile = () => {
     e.preventDefault();
     if (!isAdmin) {
         
+        // 1. Name Validation
         if (!/^[A-Za-z\s]+$/.test(formData.name)) {
             return toast.error("Name must contain only alphabets.");
         }
 
+        // 3. Phone Validation (Now checked for BOTH Customer and Worker)
         if (formData.phone.length !== 10) {
             return toast.error("Phone number must be exactly 10 digits.");
         }
@@ -105,12 +115,14 @@ const CompleteProfile = () => {
         
         if (formData.role === 'CUSTOMER') {
             if (!formData.address) return toast.error("Address is required");
+            // 4. Pincode Validation
             if (formData.pincode.length !== 6) {
                 return toast.error("Pincode must be exactly 6 digits.");
             }
         }
     }
 
+    // 2. Password Validation
     if (formData.password && formData.password.length < 8) {
         return toast.error("Password must be at least 8 characters.");
     }
@@ -177,7 +189,8 @@ const CompleteProfile = () => {
                 {!isAdmin && (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* 1. Phone & Pincode Row (For Customer) OR Phone (For Worker) */}
+                        <div className={`grid ${formData.role === 'CUSTOMER' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} gap-4`}>
                             <div>
                                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Phone Number <span className="text-red-500">*</span></label>
                                 <div className="relative">
@@ -197,6 +210,7 @@ const CompleteProfile = () => {
                             )}
                         </div>
 
+                        {/* 2. District & Taluka (Shared) */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">District <span className="text-red-500">*</span></label>
@@ -221,20 +235,30 @@ const CompleteProfile = () => {
                             </div>
                         </div>
 
+                        {/* 3. Role Specific Fields */}
                         {formData.role === 'WORKER' && (
                              <div>
                                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Service Department <span className="text-red-500">*</span></label>
-                                <div className="relative">
-                                    <Wrench className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
-                                    <select name="department" value={formData.department} onChange={handleChange} className={`${inputBaseClass} bg-white dark:bg-slate-800 appearance-none`}>
-                                        <option value="Plumber">Plumber</option>
-                                        <option value="Electrician">Electrician</option>
-                                        <option value="Cleaner">Cleaner</option>
-                                        <option value="Carpenter">Carpenter</option>
-                                    </select>
+                                <div className="grid grid-cols-2 gap-3 mt-1">
+                                    {departments.map((dept) => (
+                                        <button
+                                            key={dept.id}
+                                            type="button"
+                                            onClick={() => setFormData({...formData, department: dept.label})}
+                                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${
+                                                formData.department === dept.label
+                                                ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+                                                : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-indigo-300'
+                                            }`}
+                                        >
+                                            {dept.icon}
+                                            <span className="text-xs font-bold mt-1">{dept.label}</span>
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
                         )}
+                        
                         {formData.role === 'CUSTOMER' && (
                             <div>
                                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Address <span className="text-red-500">*</span></label>
