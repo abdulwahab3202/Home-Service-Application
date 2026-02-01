@@ -453,7 +453,7 @@ const StoreContextProvider = (props) => {
       await axios.delete(`${USER_URL}/delete/${userId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      toast.success("Customer removed successfully.");
+      toast.success("User removed successfully.");
       await fetchAdminDashboardData();
       return true;
     } catch (error) {
