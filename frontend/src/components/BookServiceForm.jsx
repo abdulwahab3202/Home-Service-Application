@@ -194,7 +194,6 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* --- 3. District Dropdown (Using SearchableSelect) --- */}
              <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">District</label>
                 <SearchableSelect 
@@ -206,7 +205,6 @@ const BookServiceForm = ({ onCancel, onSuccess }) => {
                 />
              </div>
 
-              {/* --- 4. Taluka Dropdown (Using SearchableSelect) --- */}
              <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Taluka</label>
                 <SearchableSelect 

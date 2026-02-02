@@ -23,7 +23,6 @@ const HowItWorksSection = () => {
     <section id="how-it-works" className="py-24 bg-slate-50 dark:bg-slate-900 transition-colors duration-500">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header */}
         <div className="text-center mb-20">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-4">
             Your Fix is Just <span className="text-indigo-600 dark:text-indigo-400">3 Steps Away</span>
@@ -42,7 +41,7 @@ const HowItWorksSection = () => {
               key={index} 
               className="relative p-8 bg-white dark:bg-slate-950 rounded-3xl shadow-sm hover:shadow-xl dark:shadow-none border border-slate-100 dark:border-slate-800 text-center group transition-all duration-300 hover:-translate-y-1 z-10"
             >
-              <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-indigo-600 dark:bg-indigo-500 text-white w-14 h-14 rounded-2xl rotate-3 flex items-center justify-center text-2xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none group-hover:rotate-12 transition-transform duration-300">
+              <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-indigo-600 dark:bg-indigo-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none group-hover:rotate-12 transition-transform duration-300">
                 {item.step}
               </div>
 

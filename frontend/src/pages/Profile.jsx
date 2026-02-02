@@ -137,7 +137,6 @@ const Profile = () => {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 transition-colors duration-500 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
-        {/* Header Profile Card */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden mb-8 transition-colors duration-300">
           <div className="bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-900 dark:to-blue-900 h-32 relative">
             <div className="absolute -bottom-12 left-4 sm:left-8 p-1 bg-white dark:bg-slate-900 rounded-full transition-colors duration-300">
@@ -236,7 +235,6 @@ const Profile = () => {
                 </div>
               )}
 
-              {/* District & Taluka */}
               {role !== 'ADMIN' && (
                 <>
                   <div className="space-y-2">
@@ -308,7 +306,6 @@ const Profile = () => {
           </div>
         )}
 
-        {/* History Tab */}
         {activeTab === 'history' && (
           <div className="space-y-4 min-h-[200px] animate-in fade-in">
             {isLoading ? (
@@ -364,7 +361,6 @@ const Profile = () => {
           </div>
         )}
 
-        {/* Password Modal */}
         {isPasswordModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-800 overflow-hidden scale-100 animate-in zoom-in-95 duration-200">

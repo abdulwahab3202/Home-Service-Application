@@ -4,7 +4,7 @@ import { StoreContext } from '../context/StoreContext';
 import { toast } from 'react-toastify';
 import { 
   User, Mail, Phone, MapPin, Hash, Lock, ArrowRight, 
-  CheckCircle2, Briefcase, Wrench, Map, Zap, Droplets, Hammer 
+  CheckCircle2, Briefcase, Wrench, Map, Zap, Droplets, Hammer, Loader2 
 } from 'lucide-react';
 import SearchableSelect from '../components/SearchableSelect'; 
 
@@ -13,7 +13,7 @@ const CompleteProfile = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const ADMIN_EMAIL = "homefixservice507@gmail.com";
-
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: location.state?.name || '', email: location.state?.email || '',
     phone: '', address: '', pincode: '',
@@ -80,13 +80,10 @@ const CompleteProfile = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-
-    // 3 & 4. Phone & Pincode: Numbers only
     if (name === 'phone' || name === 'pincode') {
         if (value && !/^\d*$/.test(value)) return;
     }
 
-    // 5. Address: Max 100 chars
     if (name === 'address' && value.length > 100) return;
 
     setFormData({ ...formData, [name]: value });
@@ -95,8 +92,7 @@ const CompleteProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAdmin) {
-
-        // 3. Phone Validation (Now checked for BOTH Customer and Worker)
+        
         if (formData.phone.length !== 10) {
             return toast.error("Phone number must be exactly 10 digits.");
         }
@@ -106,17 +102,17 @@ const CompleteProfile = () => {
         
         if (formData.role === 'CUSTOMER') {
             if (!formData.address) return toast.error("Address is required");
-            // 4. Pincode Validation
             if (formData.pincode.length !== 6) {
                 return toast.error("Pincode must be exactly 6 digits.");
             }
         }
     }
 
-    // 2. Password Validation
     if (formData.password && formData.password.length < 8) {
         return toast.error("Password must be at least 8 characters.");
     }
+
+    setIsLoading(true);
 
     const submissionData = {
         name: formData.name, email: formData.email,
@@ -130,7 +126,14 @@ const CompleteProfile = () => {
         taluka: !isAdmin ? formData.taluka : null
     };
 
-    if (await registerUser(submissionData)) navigate('/'); 
+    try {
+        const success = await registerUser(submissionData);
+        if (success) navigate('/');
+    } catch (error) {
+        console.error("Registration failed", error);
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   const inputBaseClass = "w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50";
@@ -179,18 +182,15 @@ const CompleteProfile = () => {
 
                 {!isAdmin && (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-                        
-                        {/* 1. Phone & Pincode Row (For Customer) OR Phone (For Worker) */}
-                        <div className={`grid ${formData.role === 'CUSTOMER' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} gap-4`}>
-                            <div>
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Phone Number <span className="text-red-500">*</span></label>
-                                <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
-                                    <input type="text" name="phone" placeholder="9876543210" value={formData.phone} onChange={handleChange} className={inputBaseClass} required maxLength={10} />
+                        {formData.role === 'CUSTOMER' ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Phone Number <span className="text-red-500">*</span></label>
+                                    <div className="relative">
+                                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
+                                        <input type="text" name="phone" placeholder="9876543210" value={formData.phone} onChange={handleChange} className={inputBaseClass} required maxLength={10} />
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            {formData.role === 'CUSTOMER' && (
                                 <div>
                                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Pincode <span className="text-red-500">*</span></label>
                                     <div className="relative">
@@ -198,10 +198,17 @@ const CompleteProfile = () => {
                                         <input type="text" name="pincode" placeholder="600001" value={formData.pincode} onChange={handleChange} className={inputBaseClass} required maxLength={6} />
                                     </div>
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Phone Number <span className="text-red-500">*</span></label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
+                                    <input type="text" name="phone" placeholder="9876543210" value={formData.phone} onChange={handleChange} className={inputBaseClass} required maxLength={10} />
+                                </div>
+                            </div>
+                        )}
 
-                        {/* 2. District & Taluka (Shared) */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">District <span className="text-red-500">*</span></label>
@@ -226,7 +233,6 @@ const CompleteProfile = () => {
                             </div>
                         </div>
 
-                        {/* 3. Role Specific Fields */}
                         {formData.role === 'WORKER' && (
                              <div>
                                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 block pl-1">Service Department <span className="text-red-500">*</span></label>
@@ -263,8 +269,8 @@ const CompleteProfile = () => {
                     </div>
                 )}
 
-                <button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 mt-6">
-                    {isAdmin ? "Enter Dashboard" : "Complete Profile"} <ArrowRight size={20} />
+                <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 mt-6">
+                    {isAdmin ? "Enter Dashboard" : (isLoading ? <Loader2 className="animate-spin" /> : <>Complete Profile <ArrowRight size={20} /></>)}
                 </button>
             </form>
         </div>

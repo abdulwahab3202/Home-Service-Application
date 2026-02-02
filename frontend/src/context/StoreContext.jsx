@@ -418,6 +418,7 @@ const StoreContextProvider = (props) => {
       let cList = [];
       if (customersRes.status === 'fulfilled' && customersRes.value.data.responseStatus === "SUCCESS") {
         cList = customersRes.value.data.data || [];
+        console.log(cList);
         setCustomersList(cList);
       }
 

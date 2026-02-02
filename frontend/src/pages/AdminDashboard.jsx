@@ -16,7 +16,6 @@ const AdminDashboard = () => {
    const [searchTerm, setSearchTerm] = useState('');
    const [filterStatus, setFilterStatus] = useState('ALL');
 
-   // Calculate additional stats
    const pendingRequests = allBookings ? allBookings.filter(b => b.status === 'OPEN').length : 0;
    const totalWorkers = workersList ? workersList.length : 0;
 
@@ -44,7 +43,6 @@ const AdminDashboard = () => {
       }
    };
 
-   // Filtering Logic
    const filteredBookings = (allBookings || []).filter(booking => {
       const matchesStatus = filterStatus === 'ALL' || booking.status === filterStatus;
       const matchesSearch =
@@ -58,6 +56,7 @@ const AdminDashboard = () => {
       c.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (c.district || "").toLowerCase().includes(searchTerm.toLowerCase())
    );
+   console.log(filteredCustomers);
 
    const filteredWorkers = (workersList || []).filter(w =>
       w.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -65,7 +64,6 @@ const AdminDashboard = () => {
       (w.district || "").toLowerCase().includes(searchTerm.toLowerCase())
    );
 
-   // Reusable Components
    const StatCard = ({ title, value, icon: Icon, bgClass, iconClass, darkBgClass, darkIconClass }) => (
       <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:-translate-y-1 transition-all duration-300">
          <div className={`p-3 rounded-full ${bgClass} ${iconClass} ${darkBgClass} ${darkIconClass}`}>
@@ -116,7 +114,6 @@ const AdminDashboard = () => {
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
          <div className="max-w-7xl mx-auto">
 
-            {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
                <div>
                   <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white transition-colors duration-300">Admin Dashboard</h1>
@@ -130,17 +127,14 @@ const AdminDashboard = () => {
                </button>
             </div>
             
-            {/* Tabs */}
             <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8 bg-white dark:bg-slate-900 rounded-t-xl overflow-hidden shadow-sm transition-colors duration-300 overflow-x-auto scrollbar-hide">
                <TabButton id="OVERVIEW" label="Overview" icon={Shield} />
                <TabButton id="CUSTOMERS" label="Customers" icon={Users} />
                <TabButton id="WORKERS" label="Workers" icon={Briefcase} />
             </div>
 
-            {/* --- OVERVIEW TAB --- */}
             {activeTab === 'OVERVIEW' && (
                <div className="space-y-8 animate-in fade-in">
-                  {/* Stats Grid - Responsive: 1 col mobile, 2 col tablet, 4 col desktop */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                      <StatCard
                         title="Total Customers"
@@ -172,7 +166,6 @@ const AdminDashboard = () => {
                      />
                   </div>
 
-                  {/* Recent Bookings Table */}
                   <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
                      <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
                         <h3 className="font-bold text-slate-800 dark:text-white">Recent Requests</h3>
@@ -217,7 +210,6 @@ const AdminDashboard = () => {
                </div>
             )}
 
-            {/* --- CUSTOMERS TAB --- */}
             {activeTab === 'CUSTOMERS' && (
                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in transition-colors duration-300">
                   <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -262,7 +254,7 @@ const AdminDashboard = () => {
                                     {user.taluka || "N/A"}
                                  </td>
                                  <td className="px-6 py-4 text-right">
-                                    <button onClick={() => handleDelete(user.userId || user.id, 'CUSTOMER')} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                                    <button onClick={() => handleDelete(user.userId, 'CUSTOMER')} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
                                  </td>
                               </tr>
                            )) : <tr><td colSpan="5" className="text-center py-8 text-slate-400 dark:text-slate-500">No customers found.</td></tr>}
@@ -272,7 +264,6 @@ const AdminDashboard = () => {
                </div>
             )}
 
-            {/* --- WORKERS TAB --- */}
             {activeTab === 'WORKERS' && (
                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in transition-colors duration-300">
                   <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
