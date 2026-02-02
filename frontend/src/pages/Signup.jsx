@@ -24,7 +24,7 @@ const Signup = ({ theme, toggleTheme }) => {
     const [formData, setFormData] = useState({
         name: '', email: '', password: '',
         role: 'CUSTOMER', otp: '',
-        phoneNumber: '', address: '', pinCode: '', // Removed city
+        phoneNumber: '', address: '', pinCode: '',
         district: '', taluka: '',
         department: 'Plumber'
     });
@@ -37,7 +37,6 @@ const Signup = ({ theme, toggleTheme }) => {
         Carpenter: <Hammer size={16} />
     };
 
-    // --- FULL TAMIL NADU DATASET (38 Districts) ---
     const tamilNaduData = {
         "Ariyalur": ["Andimadam", "Ariyalur", "Sendurai", "Udayarpalayam"],
         "Chengalpattu": ["Chengalpattu", "Cheyyur", "Maduramdagam", "Pallavaram", "Tambaram", "Thiruporur", "Tirukalukundram", "Vandalur"],
@@ -127,7 +126,6 @@ const Signup = ({ theme, toggleTheme }) => {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12 px-4 flex justify-center relative transition-colors duration-500">
-            {/* Header */}
             <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-20">
                 <Link to="/" className="flex items-center gap-2 text-xl font-extrabold text-slate-900 dark:text-white">
                     <div className="relative flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-lg text-white shadow-lg">
@@ -140,7 +138,6 @@ const Signup = ({ theme, toggleTheme }) => {
                 </button>
             </div>
 
-            {/* Background Grid */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
 
             <div className="max-w-2xl w-full bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -150,7 +147,6 @@ const Signup = ({ theme, toggleTheme }) => {
                 </div>
 
                 <form onSubmit={handleRegister} className="p-8 space-y-8">
-                    {/* Identity Section */}
                     <div className="space-y-4">
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="relative">
@@ -193,7 +189,6 @@ const Signup = ({ theme, toggleTheme }) => {
                                         <input type="text" placeholder="Phone Number" required value={formData.phoneNumber} onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })} className={inputBaseClass} />
                                     </div>
 
-                                    {/* --- SEARCHABLE DISTRICT & TALUKA --- */}
                                     <div className="grid md:grid-cols-2 gap-4">
                                         <SearchableSelect 
                                             options={districtList}
@@ -212,7 +207,6 @@ const Signup = ({ theme, toggleTheme }) => {
                                         />
                                     </div>
 
-                                    {/* Role Specific Fields - CITY REMOVED */}
                                     {formData.role === 'CUSTOMER' ? (
                                         <div className="space-y-4">
                                             <div className="relative"><MapPin className="absolute left-3 top-3.5 text-slate-400" size={18} /><input type="text" placeholder="Address (Door No, Street)" required value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} className={inputBaseClass} /></div>

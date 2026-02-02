@@ -586,7 +586,7 @@ public class UserServiceImpl implements IUserService {
 
     private CustomerResponse toCustomerDTO(Customer customer){
         CustomerResponse res = new CustomerResponse();
-        res.setUserId(customer.getId());
+        res.setUserId(customer.getUserId());
         res.setPhoneNumber(customer.getPhoneNumber());
         res.setDistrict(customer.getDistrict());
         res.setTaluka(customer.getTaluka());

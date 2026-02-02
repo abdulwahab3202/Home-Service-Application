@@ -6,7 +6,6 @@ const SearchableSelect = ({ options, value, onChange, placeholder, icon: Icon, d
     const [searchTerm, setSearchTerm] = useState('');
     const wrapperRef = useRef(null);
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -17,7 +16,6 @@ const SearchableSelect = ({ options, value, onChange, placeholder, icon: Icon, d
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Filter options based on search
     const filteredOptions = options.filter(option =>
         option.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -30,7 +28,6 @@ const SearchableSelect = ({ options, value, onChange, placeholder, icon: Icon, d
 
     return (
         <div className="relative" ref={wrapperRef}>
-            {/* The Trigger Box */}
             <div
                 onClick={() => !disabled && setIsOpen(!isOpen)}
                 className={`w-full pl-10 pr-10 py-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all duration-200 select-none
@@ -50,11 +47,9 @@ const SearchableSelect = ({ options, value, onChange, placeholder, icon: Icon, d
                 />
             </div>
 
-            {/* The Dropdown Menu */}
             {isOpen && (
                 <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                     
-                    {/* Sticky Search Input */}
                     <div className="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 backdrop-blur-sm sticky top-0 z-10">
                         <div className="relative">
                             <Search className="absolute left-3 top-2.5 text-slate-400" size={14} />
@@ -69,7 +64,6 @@ const SearchableSelect = ({ options, value, onChange, placeholder, icon: Icon, d
                         </div>
                     </div>
 
-                    {/* Options List */}
                     <div className="max-h-60 overflow-y-auto no-scrollbar scroll-smooth">
                         {filteredOptions.length > 0 ? (
                             filteredOptions.map((option) => (
@@ -95,7 +89,6 @@ const SearchableSelect = ({ options, value, onChange, placeholder, icon: Icon, d
                 </div>
             )}
             
-            {/* Inline Style to hide scrollbar across browsers */}
             <style>{`
                 .no-scrollbar::-webkit-scrollbar {
                     display: none;

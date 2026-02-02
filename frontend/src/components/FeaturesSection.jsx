@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, MapPin, DollarSign, Lock, Zap, Star } from 'lucide-react'; // Added icons for visual appeal
+import { ShieldCheck, MapPin, DollarSign, Lock, Zap, Star } from 'lucide-react';
 
 const FeaturesSection = () => {
   const features = [
